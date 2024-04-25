@@ -1,0 +1,1 @@
+Hello, MOTION BEAT frontend!
