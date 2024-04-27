@@ -1,30 +1,32 @@
-import React, { useState } from "react";
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Login from "./pages/login";
+import Room from "./pages/room";
+import Main from "./pages/main";
+import Mypage from "./pages/mypage";
+import Playtype from "./pages/playtype";
+import Tutorial from "./pages/tutorial";
+import Ranking from "./pages/ranking";
+import Setting from "./pages/setting";
+import Signup from "./pages/signup";
 
-function App() {
-  const [message, setMessage] = useState("");
-  const [echo, setEcho] = useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const response = await fetch(`http://localhost:5001/api/echo/${message}`);
-    const data = await response.json();
-    setEcho(data.echo);
-  };
-
-  return (
-    <div>
-      <h1>Echo App</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
-        <button type="submit">Submit</button>
-      </form>
-      <p>Echo: {echo}</p>
-    </div>
-  );
+const App = () => {
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Navigate replace to="/login" />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/main" element={<Main />} />
+                <Route path="/mypage" element={<Mypage />} />
+                <Route path="/playtype" element={<Playtype />} />
+                <Route path="/tutorial" element={<Tutorial />} />
+                <Route path="/ranking" element={<Ranking />} />
+                <Route path="/setting" element={<Setting />} />
+                <Route path="/room" element={<Room />} />
+            </Routes>
+    </BrowserRouter>
+    );
 }
 
 export default App;
