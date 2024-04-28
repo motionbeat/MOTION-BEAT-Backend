@@ -19,15 +19,6 @@ const Main = () => {
                 <Link to="/rankings">Rankings</Link>
                 <Link to="/settings">Settings</Link>
             </div>
-            <Switch>
-                <Route path="/friends" component={FriendPage} />
-                <Route path="/my-page" component={MyPage} />
-                <Route path="/play" component={Play} />
-                <Route path="/tutorial" component={Tutorial} />
-                <Route path="/rankings" component={Rankings} />
-                <Route path="/settings" component={Settings} />
-                <Route path="/" exact>메인 화면입니다.</Route>
-            </Switch>
         </Router>
     )
 }
