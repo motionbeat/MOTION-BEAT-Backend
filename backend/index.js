@@ -1,38 +1,72 @@
 // backend/index.js
 import express from "express";
+import session from "express-session";
 import bodyParser from "body-parser";
-import cors from "cors";
+// import cors from "cors";
 
-const app = express();
-app.use(cors());
+import bcrypt from "bcrypt";
+import authMiddleware from "./middlewares/authMiddleware.js";
+
+import userRouter from "./routes/userRouter.js";
+import songRouter from "./routes/songRouter.js";
+import rankingRouter from "./routes/rankingRouter.js";
+
+import { KakaoClient } from "./social/kakao.js";
+
+import { swaggerUi , specs } from "./modules/swagger.js";
+import dotenv from "dotenv";
+dotenv.config();
+import {app} from "./app.js"
+
+// app.use(cors());
+
+import {createServer} from "http";
+import {Server} from "socket.io";
+
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+    cors: {
+        // // origin: "http://localhost:3000",
+        origin: "*",
+    }
+});
+
+import ioFunction from "./utils/io.js"
+ioFunction(io);
+
+// request parsing
 app.use(bodyParser.json());
+app.use(express.urlencoded({extended:true}));
 
-app.post("/echo", (req, res) => {
-  const message = req.body.message; // 요청에서 메시지를 받습니다.
-  res.json({ echo: message }); // 받은 메시지를 echo 필드에 담아 응답합니다.
-});
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
-app.get("/api/echo/:message", (req, res) => {
-  res.json({ echo: req.params.message });
-}); // 받은 메시지를 echo 필드에 담아 응답합니다.
-
-if (
-  typeof chrome !== "undefined" &&
-  chrome.runtime &&
-  chrome.runtime.onMessage
-) {
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    asyncFunction(request).then((result) => {
-      sendResponse(result);
+app.get("/kakao/url", (req, res, next) => {
+    console.log("/kakao/url start");
+  
+    const url = KakaoClient.getAuthCodeURL();
+  
+    res.status(200).json({
+      url,
     });
-
-    // 이벤트 핸들러가 비동기 응답을 반환하므로 true를 반환합니다.
-    return true;
-  });
-}
-
-const port = process.env.PORT || 5001; // 백엔드 서버 포트
-
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+    
+    console.log("/kakao/url finish");
 });
+
+app.use("/api/users", userRouter);
+
+app.use('/api', authMiddleware);
+
+app.use("/api/songs", songRouter);
+app.use("/api/rankings", rankingRouter);
+//Main
+app.get('/', (req, res) => {
+    res.send("Welcome to MOTION-BEAT");
+});
+
+httpServer.listen(process.env.PORT, ()=>{
+    console.log("Server listening on port", process.env.PORT);
+});
+
+// app.listen(port, () => {
+//     console.log(`Server running on http://localhost:${port}`);
+// });
