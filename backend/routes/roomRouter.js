@@ -5,7 +5,7 @@ const roomRouter = Router();
 
 roomRouter.post("/create", roomController.createRoom);
 
-// roomRouter.patch("/leave", roomController.leaveRoom);
+roomRouter.patch("/leave", roomController.leaveRoom);
 
 // roomRouter.patch("/join/random", roomController.joinRoom);
 
