@@ -17,7 +17,6 @@ const songSchema = new mongoose.Schema({
     },
     imagePath: {
         type:String,
-        required: true,
         unique: true
     },
     runtime:{

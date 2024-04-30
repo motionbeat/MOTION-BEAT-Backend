@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv"
+dotenv.config();
 
 const userController = {
     getAllUsers: async (req, res)=>{
@@ -70,21 +72,20 @@ const userController = {
                 return res.status(404).json({message:"잘못된 패스워드입니다."});
             }
             const jwtoken = jwt.sign(
-                { id: loginUser.id, email: loginUser.email },
+                { id: loginUser._id, email: loginUser.email },
                 process.env.JWT_SECRET,
-                { expiresIn: '1h' }
+                { expiresIn: "1h" }
             );
             loginUser.token = jwtoken;
             loginUser.online = true;
             await loginUser.save()
-            res.status(200).json({message: "로그인 성공!", jwtoken, userId: loginUser.id })
+            res.status(200).json({message: "로그인 성공!", jwtoken, userId: loginUser._id })
         } catch(err) {
-            console.log("hihi");
             res.status(500).json({message: err.message});
         }
     },
     logoutUser: async (req, res)=>{
-        const currentUser = await User.findOne({ id: req.userId});
+        const currentUser = await User.findOne({ _id: req.userId});
         currentUser.online = false;
         currentUser.token = null;
         await currentUser.save();

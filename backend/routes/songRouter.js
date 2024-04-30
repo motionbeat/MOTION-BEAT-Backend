@@ -1,5 +1,6 @@
 import { Router } from "express";
 import songController from "../controllers/songController.js"; 
+import adminAuth from "../middlewares/adminAuth.js";
 
 const songRouter = Router();
 
@@ -21,32 +22,6 @@ const songRouter = Router();
  *         
  */
 songRouter.get("/", songController.getAllSongs);
-
-/**
- * @swagger
- *  /songs/{id}:
- *    get:
- *      summary: "id로 곡 조회"
- *      description: "요청 경로에 값을 담아 서버에 보낸다"
- *      tags:
- *      - song
- *      produces:
- *      - application/json
- *      parameters:
- *        - in: path
- *          name: category
- *          required: false
- *          schema:
- *            type: String
- *            description: 카테고리
- *      responses:
- *       200:
- *        description: Successfully found all songs
- *       500:
- *        description: Internal server error
- *         
- */
-songRouter.get("/:id", songController.getSongById);
 
 /**
  * @swagger
@@ -74,6 +49,26 @@ songRouter.get("/:id", songController.getSongById);
  */
 songRouter.get("/difficulty/:difficulty", songController.getSongByDifficulty);
 
+/**
+ * @swagger
+ *  /songs/favorite/{title}:
+ *    patch:
+ *      summary: "즐겨찾기 추가/제거"
+ *      description: "{title}을 사용자의 즐겨찾기 목록에 추가/제거"
+ *      tags:
+ *      - song
+ *      produces:
+ *      - application/json
+ *      parameters:
+ *        - in: path
+ *      responses:
+ *       200:
+ *        description: Successfully favorited/unfavorited song
+ *       500:
+ *        description: Internal server error
+ *         
+ */
+songRouter.patch("/favorite/:title", songController.updateFavorite);
 
 /**
  * @swagger
@@ -96,25 +91,34 @@ songRouter.get("/difficulty/:difficulty", songController.getSongByDifficulty);
  */
 songRouter.get("/favorite", songController.getFavoriteSongs);
 
+songRouter.post("/add", adminAuth, songController.addSong)
+
 /**
  * @swagger
- *  /songs/favorite/{title}:
- *    patch:
- *      summary: "즐겨찾기 추가/제거"
- *      description: "{title}을 사용자의 즐겨찾기 목록에 추가/제거"
+ *  /songs/{id}:
+ *    get:
+ *      summary: "id로 곡 조회"
+ *      description: "요청 경로에 값을 담아 서버에 보낸다"
  *      tags:
  *      - song
  *      produces:
  *      - application/json
  *      parameters:
  *        - in: path
+ *          name: category
+ *          required: false
+ *          schema:
+ *            type: String
+ *            description: 카테고리
  *      responses:
  *       200:
- *        description: Successfully favorited/unfavorited song
+ *        description: Successfully found all songs
  *       500:
  *        description: Internal server error
  *         
  */
-songRouter.patch("/favorite/:title", songController.updateFavorite);
+songRouter.get("/:id", songController.getSongById);
+
+
 
 export default songRouter;
