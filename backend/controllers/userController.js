@@ -79,7 +79,7 @@ const userController = {
             loginUser.online = true;
             console.log(loginUser);
             await loginUser.save()
-            res.status(200).json({message: "로그인 성공!", jwtoken, userId: loginUser._id })
+            res.status(200).json({message: "로그인 성공!", jwtoken, userId: loginUser._id, nickname: loginUser.nickname })
         } catch(err) {
             res.status(500).json({message: err.message});
         }
