@@ -45,9 +45,9 @@ const songController = {
             const favSong = await Song.findOne({title: req.params.title});
             const currentUser = await User.findById(req.headers.userid);
             if (currentUser.favorite.includes(favSong._id)){
-                User.updateOne({ _id: req.userId }, {$pull : {favorite: favSong._id}})
+                User.updateOne({ nickname:currentUser.nickname }, {$pull : {favorite: favSong.number}})
             } else {
-                User.updateOne({ _id: req.userId }, {$push : {favorite: favSong._id}})
+                User.updateOne({ nickname:currentUser.nickname }, {$push : {favorite: favSong.number}})
             }
             res.status(200).json({ message: `${req.params.title}이(가) 즐겨찾기에 추가되었습니다.`})
         } catch(err){
@@ -78,9 +78,19 @@ const songController = {
         try{
             const newSong = new Song({ number, title, artist, imagePath, runtime, difficulty });
             await newSong.save();
-            res.status(201).json({ message: "곡 등록 성공"})
+            res.status(201).json({ message: "곡 등록 성공"});
         } catch (err) {
-            res.status(500).json({ message: err.message })
+            res.status(500).json({ message: err.message });
+        }
+    },
+    randomSong: async (req, res)=>{
+        try{
+            const docCount = await Song.countDocuments()
+            const randomValue = Math.floor(Math.random() * docCount);
+            const randomSong = await Song.findOne({number: randomValue});
+            res.status(200).json(randomSong);
+        } catch (err) {
+            res.status(500).json({ message: err.message });
         }
     }
 }

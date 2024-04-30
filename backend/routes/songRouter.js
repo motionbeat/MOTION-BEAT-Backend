@@ -91,7 +91,26 @@ songRouter.patch("/favorite/:title", songController.updateFavorite);
  */
 songRouter.get("/favorite", songController.getFavoriteSongs);
 
-songRouter.post("/add", adminAuth, songController.addSong)
+songRouter.post("/add", adminAuth, songController.addSong);
+
+/**
+ * @swagger
+ *  /songs/random:
+ *    get:
+ *      summary: "무작위 노래 조회"
+ *      description: "요청 경로에 값을 담아 서버에 보낸다"
+ *      tags:
+ *      - song
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       200:
+ *        description: Successfully found random songs
+ *       500:
+ *        description: Internal server error
+ *         
+ */
+songRouter.get("/random", songController.randomSong);
 
 /**
  * @swagger

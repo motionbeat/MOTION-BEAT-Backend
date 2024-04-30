@@ -10,6 +10,7 @@ import authMiddleware from "./middlewares/authMiddleware.js";
 import userRouter from "./routes/userRouter.js";
 import songRouter from "./routes/songRouter.js";
 import rankingRouter from "./routes/rankingRouter.js";
+import roomRouter from "./routes/roomRouter.js"
 
 import { KakaoClient } from "./social/kakao.js";
 
@@ -58,6 +59,7 @@ app.use('/api', authMiddleware);
 
 app.use("/api/songs", songRouter);
 app.use("/api/rankings", rankingRouter);
+app.use("/api/rooms", roomRouter);
 //Main
 app.get('/', (req, res) => {
     res.send("Welcome to MOTION-BEAT");

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const songSchema = new mongoose.Schema({
     number: {
         type: Number,
-        // required: true,
+        required: true,
         unique: true
     },
     title:{

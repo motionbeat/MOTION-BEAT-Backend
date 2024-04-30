@@ -1,6 +1,7 @@
 import Ranking from "../schemas/rankingSchema.js";
 import mongoose from "mongoose";
 
+
 const rankingController = {
     getRankingBySong: async (req, res)=>{
         const title = req.params.title
