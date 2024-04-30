@@ -24,27 +24,6 @@ const userRouter = Router();
  */
 userRouter.get("/", userController.getAllUsers);
 
-/**
- * @swagger
- *  /users/{id}:
- *    get:
- *      summary: "id로 사용자 조회"
- *      description: "요청 경로에 값을 담아 서버에 보낸다"
- *      tags:
- *      - user
- *      produces:
- *      - application/json
- *      parameters:
- *        - in: path
- *      responses:
- *       200:
- *        description: Successfully found user
- *       500:
- *        description: Internal server error
- *         
- */
-userRouter.get("/:id", userController.getUser);
-
 //사용자 친구목록
 userRouter.get("/friends", authMiddleware, userController.getAllFriends);
 
@@ -126,6 +105,27 @@ userRouter.post("/signup", userController.createUser);
 userRouter.post("/login", userController.loginUser);
 
 userRouter.post("/logout", authMiddleware, userController.logoutUser);
+
+/**
+ * @swagger
+ *  /users/{id}:
+ *    get:
+ *      summary: "id로 사용자 조회"
+ *      description: "요청 경로에 값을 담아 서버에 보낸다"
+ *      tags:
+ *      - user
+ *      produces:
+ *      - application/json
+ *      parameters:
+ *        - in: path
+ *      responses:
+ *       200:
+ *        description: Successfully found user
+ *       500:
+ *        description: Internal server error
+ *         
+ */
+userRouter.get("/:id", userController.getUser);
 
 // userRouter.delete("/:id", userController.deleteUser);
 

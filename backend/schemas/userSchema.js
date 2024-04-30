@@ -25,8 +25,18 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    favorite: [],
-    friends: []
+    favorite: {
+        type: Array,
+        default: []
+    },
+    friends: {
+        type: Array,
+        default: []
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false
+    }
 });
 
 userSchema.statics.findAndValidate =  async function (email, pw){
