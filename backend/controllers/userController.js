@@ -63,7 +63,6 @@ const userController = {
         const {email, pw} = req.body;
         try{
             const loginUser = await User.findOne({ email });
-            console.log(loginUser);
             if(!loginUser){
                 return res.status(404).json({message: "사용자를 찾을 수 없습니다."});
             }
@@ -78,6 +77,7 @@ const userController = {
             );
             loginUser.token = jwtoken;
             loginUser.online = true;
+            console.log(loginUser);
             await loginUser.save()
             res.status(200).json({message: "로그인 성공!", jwtoken, userId: loginUser._id })
         } catch(err) {
@@ -85,10 +85,11 @@ const userController = {
         }
     },
     logoutUser: async (req, res)=>{
-        const currentUser = await User.findOne({ _id: req.userId});
+        const currentUser = await User.findById(req.headers.userid);
         currentUser.online = false;
         currentUser.token = null;
         await currentUser.save();
+        console.log(currentUser);
         res.status(200).json({message: "로그아웃 성공!"})
     }
 }
