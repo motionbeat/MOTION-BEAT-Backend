@@ -32,9 +32,26 @@ const roomController = {
     joinRoomByCode: async (req, res)=>{
         const nickname = req.headers.nickname
         const { code } = req.body;
-        await Room.updateOne({ code }, {$push : {players: nickname}});
-        const room = await Room.findOne({code});
-        req.status(200).json(room);
+        try{
+            await Room.updateOne({ code }, {$push : {players: nickname}});
+            const room = await Room.findOne({code});
+            req.status(200).json(room);
+        } catch(err){
+            res.status(500).json({message: message.err});            
+        }
+    },
+    leaveRoom: async (req, res)=>{
+        const nickname = req.headers.nickname;
+        const { code } = req.body;
+        try{
+            await Room.updateOne({ code }, {$pull : { players: nickname}});
+            const currentRoom = await Room.find({code});
+            if (currentRoom.players.length === 0){
+                await Room.deleteOne({ code });
+            }
+        } catch(err){
+            res.status(500).json({message: message.err});            
+        }
     },
     deleteRoom: async (req, res)=>{
      
