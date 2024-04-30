@@ -54,6 +54,20 @@ const songController = {
             res.status(500).json({ message : err.message })
         }
     },
+    updateFavorite: async(req,res)=>{
+        try{
+            const favSong = await Song.findOne({title: req.params.title});
+            const currentUser = await User.findById(req.userId);
+            if (currentUser.favorite.includes(favSong._id)){
+                User.updateOne({ _id: req.userId }, {$pull : {favorite: favSong._id}})
+            } else {
+                User.updateOne({ _id: req.userId }, {$push : {favorite: favSong._id}})
+            }
+            res.status(200).json({ message: `${req.params.title}이(가) 즐겨찾기에 추가되었습니다.`})
+        } catch(err){
+            res.status(500).json({ message : err.message })
+        }
+    },
     getFavoriteSongs: async (req, res) =>{
         try {
             // const currentPlayer = await User.find({ _id: req.session.user_id });
