@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import User from "./userSchema.js";
 
 const roomSchema = new mongoose.Schema({
     code: {
@@ -19,10 +20,13 @@ const roomSchema = new mongoose.Schema({
         type:String,
         required:true        
     },
-    players: {
-        type:Array,
-        default:[] 
-    }
+    players: [
+        {
+          type: String,
+          unique: true,
+          ref: "User",
+        },
+      ],
 });
 
 export default mongoose.model("Room", roomSchema);

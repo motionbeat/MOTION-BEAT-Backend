@@ -77,6 +77,7 @@ const userController = {
             );
             loginUser.token = jwtoken;
             loginUser.online = true;
+            loginUser.isReady = false;
             console.log(loginUser);
             await loginUser.save()
             res.status(200).json({message: "로그인 성공!", jwtoken, userId: loginUser._id, nickname: loginUser.nickname })
@@ -88,9 +89,23 @@ const userController = {
         const currentUser = await User.findById(req.headers.userid);
         currentUser.online = false;
         currentUser.token = null;
-        await currentUser.save();
-        console.log(currentUser);
-        res.status(200).json({message: "로그아웃 성공!"})
+        try{
+            await currentUser.save();
+            console.log(currentUser);
+            res.status(200).json({message: "로그아웃 성공!"});
+        } catch (err) {
+            res.status(500).json({message : err.message});
+        }
+    },
+    checkUser: async (sid)=>{
+        const user = await User.findOne({socketId:sid});
+        if (!user) throw new Error("user not found");
+        return user;
+    },
+    toggleReady: async(sid)=>{
+        const user = await User.findAndUpdateOne({socketId:sid}, {$set: {isReady: isReady?false:true}}, {new: true})
+        if (!user) throw new Error("user not found");
+        return user;
     }
 }
 
