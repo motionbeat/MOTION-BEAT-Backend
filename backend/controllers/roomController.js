@@ -33,7 +33,10 @@ const roomController = {
     },
     joinRoomByCode: async (req, res)=>{
         const nickname = req.headers.nickname
-        const code = req.params.code;
+        let code = req.params.code;
+        if (!code){
+            code = req.body.code;
+        }
         try{
             const room = await Room.findOneAndUpdate({ code }, {$push : {players: nickname}}, {new: true});
             res.status(200).json(room);
@@ -49,11 +52,11 @@ const roomController = {
             });
             if (availableMatch) {
                 req.body.code = availableMatch.code; 
-                joinRoomByCode(req, res);
+                await roomController.joinRoomByCode(req, res);
                 return;
             } else {
                 req.body.type = "match";
-                createRoom(req, res);
+                await roomController.createRoom(req, res);
                 return;
             }
         } catch (err) {
@@ -64,12 +67,11 @@ const roomController = {
         const nickname = req.headers.nickname;
         const { code } = req.body;
         try{
-            await Room.updateOne({ code }, {$pull : { players: nickname}});
-            const currentRoom = await Room.findOne({code});
+            const currentRoom = await Room.findOneAndUpdate({ code }, {$pull : { players: nickname}}, {new: true});
             if (currentRoom.players.length === 0){
                 await Room.deleteOne({ code });
             } else if (currentRoom.hostName === nickname){
-                hostName = currentRoom.players[0];
+                currentRoom.hostName = currentRoom.players[0];
             }
             res.status(200).json({message: "redirect"});
         } catch(err){

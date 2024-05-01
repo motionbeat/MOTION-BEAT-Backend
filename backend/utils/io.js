@@ -4,39 +4,6 @@ import chatController from "../controllers/chatController.js";
 import roomController from "../controllers/roomController.js";
 import mongoose from "mongoose"
 
-// export default function(io){
-//     io.on("connection", async(socket)=>{
-//         console.log("Client is connected", socket.id);
-        
-//         socket.on("login", async (nickname, cb)=>{
-//             console.log("backend", nickname);
-//             try{
-//                 const currentUser = await User.findOneAndUpdate({nickname}, {$set: {socketId: socket.id}},  {new: true});
-//                 if (currentUser) {
-//                     console.log("User updated successfully:", currentUser);
-//                     cb({ok: true});
-//                 } else {
-//                     console.log("User not found.");
-//                     cb({ok: false, error: "User not found"});
-//                 }
-
-//             } catch (err) {
-//                 console.log("User not found", err);
-//                 cb({ok: false, error: "An error occurred while updating user"});
-//             }
-//         })
-        
-//         socket.on("disconnect", async ()=>{
-//             try {
-//                 await User.updateOne({socketId: socket.id}, {$set: {socketId: null}});
-//                 console.log("User is disconnected");
-//             } catch (err) {
-//                 console.log("Error disconnecting user:", err);
-//             }
-//         })
-//     });
-// };
-
 export default function(io) {
     io.on("connection", async(socket) => {
         console.log("Client is connected", socket.id);
