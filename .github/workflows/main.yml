@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           source: "."
-          target: "/path/to/your/app"
+          target: "/home/ubuntu/MOTION-BEAT-Backend/backend"
 
       - name: Restart application
         uses: appleboy/ssh-action@master
@@ -31,7 +31,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /path/to/your/app
+            cd /home/ubuntu/MOTION-BEAT-Backend/backend
             npm install
             pm2 restart all
 
