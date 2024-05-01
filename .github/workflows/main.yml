@@ -11,15 +11,13 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js and Install PM2
-        run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash  # Install NVM
-          . ~/.nvm/nvm.sh  # Load NVM
-          nvm install 20.12.2
-          nvm use 20.12.2
-          npm install -g pm2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts'
+          check-latest: true
 
       - name: Copy files to EC2
         uses: appleboy/scp-action@master
