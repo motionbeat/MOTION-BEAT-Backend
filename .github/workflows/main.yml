@@ -1,35 +1,45 @@
-name: CI/CD
+name: Deploy Express.js Application to EC2
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - release-*
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Build and push Docker images
-        run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker build -t ghcr.io/${{ github.repository_owner }}/echo-frontend ./frontend
-          docker build -t ghcr.io/${{ github.repository_owner }}/echo-backend ./backend
-          docker build -t ghcr.io/${{ github.repository_owner }}/echo-nginx ./nginx
-          docker push ghcr.io/${{ github.repository_owner }}/echo-frontend
-          docker push ghcr.io/${{ github.repository_owner }}/echo-backend
-          docker push ghcr.io/${{ github.repository_owner }}/echo-nginx
+      - name: Copy files to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "."
+          target: "/path/to/your/app"
 
-      - name: Deploy to EC2
+      - name: Restart application
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /path/to/your/app
+            npm install
+            pm2 restart all
+
+      - name: Send notification
+        uses: rtCamp/action-slack-notify@v2
         env:
-          HOST: ${{ secrets.EC2_HOST }}
-          KEY: ${{ secrets.EC2_PRIVATE_KEY }}
-        run: |
-          echo "$KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@$HOST '
-            docker pull ghcr.io/${{ github.repository_owner }}/echo-frontend
-            docker pull ghcr.io/${{ github.repository_owner }}/echo-backend
-            docker pull ghcr.io/${{ github.repository_owner }}/echo-nginx
-            docker-compose up -d
-          '
+          SLACK_CHANNEL: "deployments"
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+          SLACK_MESSAGE: "${{ github.repository }} deployment ${{ job.status }}!"
+          SLACK_TITLE: "Deployment Status"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
