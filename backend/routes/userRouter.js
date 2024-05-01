@@ -104,7 +104,28 @@ userRouter.post("/signup", userController.createUser);
  */
 userRouter.post("/login", userController.loginUser);
 
-userRouter.post("/logout", authMiddleware, userController.logoutUser);
+/**
+ * @swagger
+ *  /users/logout:
+ *    patch:
+ *      summary: "사용자 로그아웃"
+ *      description: "PATCH방식으로 로그아웃"
+ *      tags:
+ *      - user
+ *      produces:
+ *      - application/json
+ *      parameters:
+ *      - in: headers
+ *        nickname: body
+ *        required: true
+ *      responses:
+ *       200:
+ *        description: Successfully logged out
+ *       500:
+ *        description: Internal server error
+ *         
+*/
+userRouter.patch("/logout", authMiddleware, userController.logoutUser);
 
 /**
  * @swagger

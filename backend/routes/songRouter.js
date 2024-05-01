@@ -91,6 +91,49 @@ songRouter.patch("/favorite/:title", songController.updateFavorite);
  */
 songRouter.get("/favorite", songController.getFavoriteSongs);
 
+/**
+ * @swagger
+ *  /songs/add:
+ *    post:
+ *      summary: "Admin 노래 등록"
+ *      description: "POST방식으로 데이터베이스에 노래 등록"
+ *      tags:
+ *      - song
+ *      produces:
+ *      - application/json
+ *      parameters:
+ *      - in: body
+ *        name: body
+ *        required: true
+ *        schema:
+ *          type: object
+ *          required: 
+ *          - number
+ *          - title
+ *          - artist
+ *          - imagePath
+ *          - runtime
+ *          - difficulty
+ *          properties:
+ *            number:
+ *              type: number
+ *            title:
+ *              type: string
+ *            artist:
+ *              type: string
+ *            imagePath:
+ *              type: string
+ *            runtime: 
+ *              type: string
+ *            difficulty:
+ *              type: string
+ *      responses:
+ *       201:
+ *        description: Successfully registered song
+ *       500:
+ *        description: Internal server error
+ *         
+ */
 songRouter.post("/add", adminAuth, songController.addSong);
 
 /**
@@ -136,7 +179,7 @@ songRouter.get("/random", songController.randomSong);
  *        description: Internal server error
  *         
  */
-songRouter.get("/:id", songController.getSongById);
+songRouter.get("/:number", songController.getSongByNumber);
 
 
 

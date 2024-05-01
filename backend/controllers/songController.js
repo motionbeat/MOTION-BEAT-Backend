@@ -14,9 +14,9 @@ const songController = {
         }
     },
 
-    getSongById: async(req, res) =>{
+    getSongByNumber: async(req, res) =>{
         try{
-            const song = await Song.findById(req.params.id);
+            const song = await Song.find({number: req.params.number});
             if(song){
                 res.json(song);
             } else {
@@ -88,9 +88,10 @@ const songController = {
             const docCount = await Song.countDocuments()
             const randomValue = Math.floor(Math.random() * docCount);
             const randomSong = await Song.findOne({number: randomValue});
-            res.status(200).json(randomSong);
+            // res.status(200).json(randomSong);
+            return randomSong;
         } catch (err) {
-            res.status(500).json({ message: err.message });
+            throw err;
         }
     }
 }

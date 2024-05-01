@@ -1,4 +1,7 @@
 import mongoose from "mongoose";
+import User from "./userSchema.js";
+import Chatroom from "./chatroomSchema.js";
+
 
 const chatSchema = new mongoose.Schema({
     chat: String,
@@ -7,7 +10,11 @@ const chatSchema = new mongoose.Schema({
             type: mongoose.Schema.ObjectId,
             ref: "User",
         },
-        name: String,
+        nickname: String,
+    },
+    chatroom: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Chatroom",
     },
 },
     { timestamp: true }   
