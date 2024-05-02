@@ -89,8 +89,10 @@ export default function(io) {
 
         socket.on("leaveRoom", async (code, cb)=>{
             try{
-                const roomPlayers = await roomController.getPlayerInfo(code);              
-                io.emit("leftRoom", roomPlayers);
+                const roomPlayers = await roomController.getPlayerInfo(code); 
+                if (roomPlayers){
+                    io.emit("leftRoom", roomPlayers);
+                }
             } catch (err) {
                 console.log("Error in leaving room", err);
                 cb({ok: false, error: err.message})

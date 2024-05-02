@@ -38,7 +38,14 @@ const roomController = {
             code = req.body.code;
         }
         try{
-            const room = await Room.findOneAndUpdate({ code }, {$push : {players: nickname}}, {new: true});
+            let room = await Room.findOne({ code });
+            if (!room){
+                return res.status(404).json({message: "존재하지 않는 방입니다."});
+            }
+            if(room.players.length === 4){
+                return res.status(409).json({message: "방이 모두 찼습니다."});
+            }
+            room = await Room.findOneAndUpdate({ code }, {$push : {players: nickname}}, {new: true});
             res.status(200).json(room);
         } catch(err){
             res.status(500).json({message: err.message});            
@@ -90,7 +97,11 @@ const roomController = {
     getPlayerInfo: async(code)=>{
         try{
             const room = await Room.findOne({code});
-            return room.players;
+            if (room){
+                return room.players;
+            } else {
+                return false;
+            }
         } catch (err){
             throw err;
         }

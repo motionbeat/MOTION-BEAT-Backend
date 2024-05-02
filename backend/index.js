@@ -21,23 +21,32 @@ import {app} from "./app.js"
 
 // app.use(cors());
 
+// request parsing
+app.use(bodyParser.json());
+app.use(express.urlencoded({extended:true}));
+
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*'); // Allow requests from any origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, , PATCH, PUT, DELETE, OPTIONS'); // Specify the allowed HTTP methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization'); // Specify the allowed headers
+    next();
+  });
+
 import {createServer} from "http";
 import {Server} from "socket.io";
 
+import ioFunction from "./utils/io.js"
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
         origin: "http://localhost:3000",
-        // origin: "*",
+        methods: ["GET", "POST", "PATCH"], // Specify the allowed HTTP methods
+        allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"], // Specify the allowed headers
+        credentials: true
     }
 });
-
-import ioFunction from "./utils/io.js"
 ioFunction(io);
 
-// request parsing
-app.use(bodyParser.json());
-app.use(express.urlencoded({extended:true}));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
