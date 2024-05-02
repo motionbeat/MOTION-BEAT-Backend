@@ -22,7 +22,13 @@ const roomController = {
         let code = makeCode();
         try{
             let song = await songController.randomSong();
-            const room = new Room({ code, hostName: nickname, song: song.number, type });
+            const room = new Room({ 
+                code, 
+                hostName: nickname, 
+                song: song.number, 
+                type, 
+                gameState: "waiting"
+            });
             await room.save();
             await Room.updateOne({ code }, {$push : {players: nickname}});
             res.status(200).json(room);
@@ -45,6 +51,9 @@ const roomController = {
             if(room.players.length === 4){
                 return res.status(409).json({message: "방이 모두 찼습니다."});
             }
+            if(room.gameState !== "waiting"){
+                return res.status(409).json({message: "현재 게임이 진행중인 방입니다."});
+            }
             room = await Room.findOneAndUpdate({ code }, {$push : {players: nickname}}, {new: true});
             res.status(200).json(room);
         } catch(err){
@@ -55,6 +64,7 @@ const roomController = {
         try {
             const availableMatch = await Room.findOne({
                 type: "match",
+                gameState: "waiting",
                 $expr: { $lt: [{ $size: "$players" }, 4] }
             });
             if (availableMatch) {

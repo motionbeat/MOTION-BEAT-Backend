@@ -3,27 +3,29 @@ import User from "./userSchema.js";
 import Room from "./roomSchema.js";
 
 const gameSchema = new mongoose.Schema({
-    code: {
+    code: { 
         type: String,
-        required: true,
-        unique: true
+        ref: 'Room', 
+        required: true 
     },
     song:{
-        type:String,
-        required:true,
+        type: Number,
+        ref: "Song",
+        required: true
     },
-    type:{
-        type:String,
-        required:true        
+    gameState: { 
+        type: String, 
+        ref: "Room",
+        required: true 
     },
-    players: [
-        {
-          type: String,
-          unique: true,
-          ref: "User",
-        },
-      ],
-    
-});
+    players: [{ 
+        nickname: { type: String, ref: 'User' }, 
+        score: {
+            type: Number,
+            default: 0
+        } 
+    }],
+    // Other game-related fields...
+  });
 
-export default mongoose.model("Room", roomSchema);
+export default mongoose.model("Game", gameSchema);

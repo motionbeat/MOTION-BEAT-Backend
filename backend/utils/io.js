@@ -5,7 +5,7 @@ import chatController from "../controllers/chatController.js";
 import roomController from "../controllers/roomController.js";
 import mongoose from "mongoose"
 
-export default function(io) {
+export default function ioFunction(io) {
     io.on("connection", async(socket) => {
         console.log("Client is connected", socket.id);
         // let tempData = socket.id;
@@ -97,6 +97,10 @@ export default function(io) {
                 console.log("Error in leaving room", err);
                 cb({ok: false, error: err.message})
             }
+        })
+
+        socket.on("hit", async(currentScore, cb)=>{
+            currentScore ++;
         })
 
         socket.on("disconnect", async () => {
