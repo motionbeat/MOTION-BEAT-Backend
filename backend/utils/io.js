@@ -1,4 +1,5 @@
 import User from "../schemas/userSchema.js";
+import Room from "../schemas/roomSchema.js";
 import userController from "../controllers/userController.js";
 import chatController from "../controllers/chatController.js";
 import roomController from "../controllers/roomController.js";
@@ -7,6 +8,7 @@ import mongoose from "mongoose"
 export default function(io) {
     io.on("connection", async(socket) => {
         console.log("Client is connected", socket.id);
+        // let tempData = socket.id;
         
         socket.on("login", async (nickname, cb) => {
             console.log("backend", nickname);
@@ -59,14 +61,16 @@ export default function(io) {
             }
         });
 
-        socket.on("ready", async ()=>{
+        socket.on("ready", async (cb)=>{
             try{
-                const { isReady, nickname } = await userController.toggleReady(socket.id);
+                const user = await userController.toggleReady(socket.id);
+                const { isReady, nickname } = user;
                 const userReady = {
                     isReady, 
                     nickname
                 }
                 io.emit("readyStatus", userReady);
+                cb({ok: true})
             } catch (err) {
                 console.log("Error readying:", err);
                 cb({ok: false, error: err.message});
@@ -83,9 +87,39 @@ export default function(io) {
             }
         });
 
+        socket.on("leaveRoom", async (code, cb)=>{
+            try{
+                const roomPlayers = await roomController.getPlayerInfo(code);              
+                io.emit("leftRoom", roomPlayers);
+            } catch (err) {
+                console.log("Error in leaving room", err);
+                cb({ok: false, error: err.message})
+            }
+        })
+
         socket.on("disconnect", async () => {
             try {
-                await User.updateOne({socketId: socket.id}, {$set: {socketId: null}});
+                const user = await User.findOneAndUpdate({socketId: socket.id}, {$set: {socketId: null}}, {new: true});
+                if(user){
+                    const room = await Room.findOne({players: {$in: [user.nickname]}});
+                    if (room){
+                        const res = { status: () => {}, json: () => {} };
+                        const req = {
+                            body : {
+                                live : true,
+                                code : room.code
+                            },
+                            headers: {
+                                nickname:  user.nickname
+                            }
+                        };
+                        const testRoom = await roomController.leaveRoom(req, res);
+                        if (testRoom){
+                            const roomPlayers = await roomController.getPlayerInfo(room.code)
+                            io.emit("leftRoom", roomPlayers)
+                        }
+                    }
+                }
                 console.log("User is disconnected");
             } catch (err) {
                 console.log("Error disconnecting user:", err);

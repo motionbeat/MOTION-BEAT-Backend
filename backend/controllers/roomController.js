@@ -70,8 +70,14 @@ const roomController = {
             const currentRoom = await Room.findOneAndUpdate({ code }, {$pull : { players: nickname}}, {new: true});
             if (currentRoom.players.length === 0){
                 await Room.deleteOne({ code });
+                if (req.body.live){
+                    return false;
+                }
             } else if (currentRoom.hostName === nickname){
                 currentRoom.hostName = currentRoom.players[0];
+                if (req.body.live){
+                    return currentRoom;
+                }
             }
             res.status(200).json({message: "redirect"});
         } catch(err){
