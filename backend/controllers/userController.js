@@ -103,8 +103,12 @@ const userController = {
         return user;
     },
     toggleReady: async(sid)=>{
-        const user = await User.findAndUpdateOne({socketId:sid}, {$set: {isReady: isReady?false:true}}, {new: true})
+        const user = await User.findOne({socketId: sid});
         if (!user) throw new Error("user not found");
+
+        user.isReady = !user.isReady;
+        await user.save();
+
         return user;
     }
 }
