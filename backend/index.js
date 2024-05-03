@@ -11,6 +11,7 @@ import userRouter from "./routes/userRouter.js";
 import songRouter from "./routes/songRouter.js";
 import rankingRouter from "./routes/rankingRouter.js";
 import roomRouter from "./routes/roomRouter.js"
+import gameRouter from "./routes/gameRouter.js"
 
 import { KakaoClient } from "./social/kakao.js";
 
@@ -32,19 +33,9 @@ app.use((req, res, next) => {
     next();
   });
 
-import {createServer} from "http";
-import {Server} from "socket.io";
 
-import ioFunction from "./utils/io.js"
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
-    cors: {
-        origin: "http://localhost:3000",
-        methods: ["GET", "POST", "PATCH"], // Specify the allowed HTTP methods
-        allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"], // Specify the allowed headers
-        credentials: true
-    }
-});
+import ioFunction from "./utils/io.js";
+import {io, httpServer} from "./utils/socket.js";
 ioFunction(io);
 
 
@@ -69,6 +60,7 @@ app.use('/api', authMiddleware);
 app.use("/api/songs", songRouter);
 app.use("/api/rankings", rankingRouter);
 app.use("/api/rooms", roomRouter);
+app.use("/api/games", gameRouter);
 //Main
 app.get('/', (req, res) => {
     res.send("Welcome to MOTION-BEAT");

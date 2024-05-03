@@ -26,7 +26,12 @@ const roomSchema = new mongoose.Schema({
           unique: true,
           ref: "User",
         },
-      ],
+    ],
+    gameState: {
+        type: String,
+        required: true,
+        ref: "Game"
+    }
 });
 
 export default mongoose.model("Room", roomSchema);
