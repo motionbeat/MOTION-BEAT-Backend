@@ -1,9 +1,13 @@
 import User from "../schemas/userSchema.js";
 import Room from "../schemas/roomSchema.js";
+import Game from "../schemas/gameSchema.js";
 import userController from "../controllers/userController.js";
 import chatController from "../controllers/chatController.js";
 import roomController from "../controllers/roomController.js";
+import gameController from "../controllers/gameController.js";
 import mongoose from "mongoose"
+
+const loadedPlayersPerRoom = new Map();
 
 export default function ioFunction(io) {
     io.on("connection", async(socket) => {
@@ -97,11 +101,30 @@ export default function ioFunction(io) {
                 console.log("Error in leaving room", err);
                 cb({ok: false, error: err.message})
             }
-        })
+        });
+
+        socket.on('playerLoaded', async ({ nickname, code }) => {
+            let loadedPlayers = loadedPlayersPerRoom.get(code);
+            if (!loadedPlayers) {
+                loadedPlayers = new Set();
+                loadedPlayersPerRoom.set(code, loadedPlayers);
+            }
+            loadedPlayers.add(nickname);
+    
+            const game = await Game.findOne({ code })
+            console.log(game.players.length);
+            console.log(loadedPlayers.size)
+            if (game && game.players.length === loadedPlayers.size) {
+                io.emit(`allPlayersLoaded${code}`);
+            }
+            }).catch(error => {
+                console.error('방 확인 중 오류 발생:', error);
+            });
+        });
 
         socket.on("hit", async(currentScore, cb)=>{
             currentScore ++;
-        })
+        });
 
         socket.on("disconnect", async () => {
             try {
