@@ -29,7 +29,7 @@ const gameController = {
             await game.save();
             room.gameState = "playing";
             await room.save();            
-            io.emit("gameStarted",  { code });
+            io.emit("gameStarted",  game);
             res.status(200).json(game);
         } catch (error) {
             console.error('Error starting game:', error);
