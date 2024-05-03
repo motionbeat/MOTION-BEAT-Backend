@@ -1,2 +1,21 @@
-# MOTION-BEAT
-4교육장 14-18주차 (2024.4.19(금) ~ 2024.5.23(목)) 나만의 무기 갖기 2조: 사나이팀
+# Backend
+BE
+
+backend/  
+├── index.js  
+├── package.json  
+├── /config  
+│ └── db.js  
+├── /routes  
+│ ├── userRouter.js  
+│ ├── rankingRouter.js  
+│ └── songRouter.js  
+├── /controllers  
+│ ├── userController.js  
+│ ├── rankingController.js  
+│ └── songController.js  
+├── /middlewares  
+├── /schemas  
+│ ├── userSchema.js  
+│ ├── rankingSchema.js  
+│ └── songSchema.js  
