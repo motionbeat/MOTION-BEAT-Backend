@@ -8,6 +8,7 @@ import gameController from "../controllers/gameController.js";
 import mongoose from "mongoose"
 
 const loadedPlayersPerRoom = new Map();
+const endedPlayersPerRoom = new Map();
 
 export default function ioFunction(io) {
     io.on("connection", async(socket) => {
@@ -105,22 +106,41 @@ export default function ioFunction(io) {
 
         socket.on('playerLoaded', async ({ nickname, code }) => {
             let loadedPlayers = loadedPlayersPerRoom.get(code);
-            if (!loadedPlayers) {
-                loadedPlayers = new Set();
-                loadedPlayersPerRoom.set(code, loadedPlayers);
+            try{ 
+                if (!loadedPlayers) {
+                    loadedPlayers = new Set();
+                    loadedPlayersPerRoom.set(code, loadedPlayers);
+                }
+                loadedPlayers.add(nickname);
+        
+                const game = await Game.findOne({ code })
+                if (game && game.players.length === loadedPlayers.size) {
+                    io.emit(`allPlayersLoaded${code}`);
+                }
+            } catch (err) {
+                console.error('방 확인 중 오류 발생:', err);
             }
-            loadedPlayers.add(nickname);
-    
-            const game = await Game.findOne({ code })
-            console.log(game.players.length);
-            console.log(loadedPlayers.size)
-            if (game && game.players.length === loadedPlayers.size) {
-                io.emit(`allPlayersLoaded${code}`);
-            }
-            }).catch(error => {
-                console.error('방 확인 중 오류 발생:', error);
-            });
         });
+
+        socket.on('gameEnded', async ({nickname, code})=>{
+            let endedPlayers = endedPlayersPerRoom.get(code);
+            try{ 
+                if (!endedPlayers) {
+                    endedPlayers = new Set();
+                    endedPlayersPerRoom.set(code, endedPlayers);
+                }
+                endedPlayers.add(nickname);
+        
+                const game = await Game.findOne({ code })
+                if (game && game.players.length === endedPlayers.size) {
+                    io.emit(`allPlayersEnded${code}`);
+                }
+            } catch (err) {
+                console.error('방 확인 중 오류 발생:', err);
+            }
+        });
+
+
 
         socket.on("hit", async(currentScore, cb)=>{
             currentScore ++;
