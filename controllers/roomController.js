@@ -22,7 +22,13 @@ const roomController = {
         let code = makeCode();
         try{
             let song = await songController.randomSong();
-            const room = new Room({ code, hostName: nickname, song: song.number, type });
+            const room = new Room({ 
+                code, 
+                hostName: nickname, 
+                song: song.number, 
+                type, 
+                gameState: "waiting"
+            });
             await room.save();
             await Room.updateOne({ code }, {$push : {players: nickname}});
             res.status(200).json(room);
@@ -38,7 +44,17 @@ const roomController = {
             code = req.body.code;
         }
         try{
-            const room = await Room.findOneAndUpdate({ code }, {$push : {players: nickname}}, {new: true});
+            let room = await Room.findOne({ code });
+            if (!room){
+                return res.status(404).json({message: "존재하지 않는 방입니다."});
+            }
+            if(room.players.length === 4){
+                return res.status(409).json({message: "방이 모두 찼습니다."});
+            }
+            if(room.gameState !== "waiting"){
+                return res.status(409).json({message: "현재 게임이 진행중인 방입니다."});
+            }
+            room = await Room.findOneAndUpdate({ code }, {$push : {players: nickname}}, {new: true});
             res.status(200).json(room);
         } catch(err){
             res.status(500).json({message: err.message});            
@@ -48,6 +64,7 @@ const roomController = {
         try {
             const availableMatch = await Room.findOne({
                 type: "match",
+                gameState: "waiting",
                 $expr: { $lt: [{ $size: "$players" }, 4] }
             });
             if (availableMatch) {
@@ -70,8 +87,17 @@ const roomController = {
             const currentRoom = await Room.findOneAndUpdate({ code }, {$pull : { players: nickname}}, {new: true});
             if (currentRoom.players.length === 0){
                 await Room.deleteOne({ code });
+                if (req.body.live){
+                    return false;
+                }
             } else if (currentRoom.hostName === nickname){
                 currentRoom.hostName = currentRoom.players[0];
+                if (req.body.live){
+                    return currentRoom;
+                }
+            }
+            if (req.body.live){
+                return currentRoom;
             }
             res.status(200).json({message: "redirect"});
         } catch(err){
@@ -81,7 +107,11 @@ const roomController = {
     getPlayerInfo: async(code)=>{
         try{
             const room = await Room.findOne({code});
-            return room.players;
+            if (room){
+                return room.players;
+            } else {
+                return false;
+            }
         } catch (err){
             throw err;
         }
