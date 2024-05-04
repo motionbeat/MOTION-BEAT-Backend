@@ -159,7 +159,7 @@ export default function ioFunction(io) {
         });
 
         socket.on("hit", async(currentScore, cb)=>{
-            currentScore ++;
+            io.to().emit(currentScore)
             cb({ ok: true });
         });
 

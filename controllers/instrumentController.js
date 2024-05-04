@@ -1,3 +1,4 @@
+import {io} from "../utils/socket.js";
 import Room from "../schemas/roomSchema.js";
 import User from "../schemas/userSchema.js";
 import Instrument from "../schemas/instrumentSchema.js";
@@ -30,7 +31,7 @@ const instrumentController = {
                 nickname: nickname,
                 instrument: instrumentName
             });
-            res.status(200).json(updatedRoom);
+            res.status(200).json({message: "성공적으로 악기를 변경했습니다"});
         } catch (err) {
             res.status(500).json({message: err.message});
         }
