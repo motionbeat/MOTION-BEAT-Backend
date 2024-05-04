@@ -5,4 +5,6 @@ const instrumentRouter = Router();
 
 instrumentRouter.get("/", instrumentController.showInstruments);
 
+instrumentRouter.patch("/select", instrumentController.selectInstrument);
+
 export default instrumentRouter;
