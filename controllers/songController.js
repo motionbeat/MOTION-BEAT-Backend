@@ -93,6 +93,21 @@ const songController = {
         } catch (err) {
             throw err;
         }
+    },
+    addRecentSong: async (req, res)=>{
+        const songNumber = req.body;
+        const nickname = req.headers;
+        try{
+            const song = Song.findOne({number: songNumber});
+            const currentUser = User.findOne({nickname});
+            currentUser.recentlyPlayed.unshift(song.title);
+            if (currentUser.recentlyPlayed.length > 5){
+                currentUser.recentlyPlayed.pop();
+            }
+            res.status(200).json({message: "성공적으로 노래를 등록했습니다."});
+        } catch (err) {
+            res.status(500).json({message: err.message});
+        }
     }
 }
 

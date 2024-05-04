@@ -1,7 +1,9 @@
+import {io} from "../utils/socket.js";
 import Room from "../schemas/roomSchema.js";
 import User from "../schemas/userSchema.js";
 import songController from "./songController.js";
 import mongoose from "mongoose";
+
 
 function makeCode() {
     let result = '';
@@ -30,7 +32,16 @@ const roomController = {
                 gameState: "waiting"
             });
             await room.save();
-            await Room.updateOne({ code }, {$push : {players: nickname}});
+            await Room.updateOne(
+                { code }, 
+                {
+                  $push: {
+                    players: {
+                      nickname: nickname, 
+                      instrument: "none" 
+                    }
+                  }
+                });
             res.status(200).json(room);
         } catch (err) {
             console.log(err);
@@ -54,7 +65,7 @@ const roomController = {
             if(room.gameState !== "waiting"){
                 return res.status(409).json({message: "현재 게임이 진행중인 방입니다."});
             }
-            room = await Room.findOneAndUpdate({ code }, {$push : {players: nickname}}, {new: true});
+            room = await Room.findOneAndUpdate({ code }, {$push : {players: {nickname: nickname, instrument: "none"}}}, {new: true});
             res.status(200).json(room);
         } catch(err){
             res.status(500).json({message: err.message});            
@@ -84,14 +95,20 @@ const roomController = {
         const nickname = req.headers.nickname;
         const { code } = req.body;
         try{
-            const currentRoom = await Room.findOneAndUpdate({ code }, {$pull : { players: nickname}}, {new: true});
+            const currentRoom = await Room.findOneAndUpdate(
+                { code }, 
+                { $pull: { players: { nickname: nickname } } }, 
+                { new: true } 
+            );            
             if (currentRoom.players.length === 0){
                 await Room.deleteOne({ code });
                 if (req.body.live){
                     return false;
                 }
             } else if (currentRoom.hostName === nickname){
-                currentRoom.hostName = currentRoom.players[0];
+                currentRoom.hostName = currentRoom.players[0].nickname;
+                currentRoom.save();
+                io.to(currentRoom.code).emit("hostChanged", currentRoom.hostName);
                 if (req.body.live){
                     return currentRoom;
                 }
@@ -108,6 +125,7 @@ const roomController = {
         try{
             const room = await Room.findOne({code});
             if (room){
+                console.log(room.players)
                 return room.players;
             } else {
                 return false;

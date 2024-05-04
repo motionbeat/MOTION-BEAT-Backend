@@ -21,21 +21,22 @@ const gameController = {
             }));
 
             const game = new Game({
-                code,
+                code: code,
                 song: room.song, 
                 gameState : "playing",
-                players           
+                players       
             });
             await game.save();
             room.gameState = "playing";
-            await room.save();            
-            io.emit("gameStarted",  game);
+            await room.save();
+            io.emit(`gameStarted${code}`,  game);
+
             res.status(200).json(game);
         } catch (error) {
             console.error('Error starting game:', error);
             res.status(500).json({ error: 'Internal server error' });
         }
-    }
+    },
 }
 
 export default gameController;

@@ -13,8 +13,7 @@ const chatSchema = new mongoose.Schema({
         nickname: String,
     },
     chatroom: {
-        type: mongoose.Schema.ObjectId,
-        ref: "Chatroom",
+        type: String,
     },
 },
     { timestamp: true }   
