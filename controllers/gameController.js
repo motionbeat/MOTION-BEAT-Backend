@@ -36,7 +36,7 @@ const gameController = {
             console.error('Error starting game:', error);
             res.status(500).json({ error: 'Internal server error' });
         }
-    }
+    },
 }
 
 export default gameController;

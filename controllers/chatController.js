@@ -13,7 +13,8 @@ const chatController = {
         })
         await newMessage.save();
         return newMessage;
-    }
+    },
+    // deleteChat: async ()
 }
 
 export default chatController;

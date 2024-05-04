@@ -129,6 +129,25 @@ userRouter.patch("/logout", authMiddleware, userController.logoutUser);
 
 /**
  * @swagger
+ *  /users:
+ *    get:
+ *      summary: "최근 플레이 곡 조회"
+ *      description: "GET 방식으로 최근 플레이 목록 5개 조회"
+ *      tags:
+ *      - user
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       200:
+ *        description: Successfully found recent songs
+ *       500:
+ *        description: Internal server error
+ *         
+ */
+userRouter.get("/recent", userController.getRecentSongs)
+
+/**
+ * @swagger
  *  /users/{id}:
  *    get:
  *      summary: "id로 사용자 조회"

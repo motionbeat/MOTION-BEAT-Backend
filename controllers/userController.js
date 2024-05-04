@@ -48,7 +48,16 @@ const userController = {
             res.status(500).json({message: err.message});
         }
     },
-
+    getRecentSongs: async(req, res)=>{
+        const {nickname} = req.headers;
+        try{
+            const currentUser = await User.findOne({nickname});
+            const recentSongs = await currentUser.populateRecentSongs();
+            res.status(200).json(recentSongs)
+        } catch (err) {
+            res.status(500).json({message: err.message});
+        }
+    },
     createUser: async (req, res) =>{
         const { email, nickname, pw } = req.body;
         let isValid = await User.findOne({ email })
@@ -123,10 +132,16 @@ const userController = {
 
         return user;
     },
-    // getFriends: async(req, res)=>{
-    //     const user = await User.findOne({nickname: req.headers.nickname});
+    changeSettings: async(req, res)=>{
+        const {nickname} = req.headers;
+        const { lobbyVolume, buttonVolume, gameVolume } = req.body;
+        try {
+            const user = await User.findOne({nickname});
 
-    // }
+        } catch (err){
+            res.status(500).json({message:err.message});
+        }
+    }
 }
 
 export default userController

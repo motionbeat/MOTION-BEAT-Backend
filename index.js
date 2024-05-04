@@ -12,6 +12,7 @@ import songRouter from "./routes/songRouter.js";
 import rankingRouter from "./routes/rankingRouter.js";
 import roomRouter from "./routes/roomRouter.js"
 import gameRouter from "./routes/gameRouter.js"
+import instrumentRouter from "./routes/instrumentRouter.js"
 
 import { KakaoClient } from "./social/kakao.js";
 
@@ -61,6 +62,7 @@ app.use("/api/songs", songRouter);
 app.use("/api/rankings", rankingRouter);
 app.use("/api/rooms", roomRouter);
 app.use("/api/games", gameRouter);
+app.use("/api/instruments", instrumentRouter);
 //Main
 app.get('/', (req, res) => {
     res.send("Welcome to MOTION-BEAT");

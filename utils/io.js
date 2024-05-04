@@ -40,7 +40,8 @@ export default function ioFunction(io) {
         socket.on("sendMessage", async (message, cb)=>{
             try{
                 const user = await userController.checkUser(socket.id);
-                const room = await Room.findOne({players : {$in: [user.nickname]}})
+                const room = await Room.findOne({ "players.nickname": user.nickname });
+
                 console.log(room.code)
                 if (!room){
                     return;
@@ -76,11 +77,21 @@ export default function ioFunction(io) {
                     isReady, 
                     nickname
                 }
-                const room = await Room.findOne({ players: { $in: [nickname] } });
+                const room = await Room.findOne({ "players.nickname": nickname });
                 io.to(room.code).emit("readyStatus", userReady);
                 cb({ok: true})
             } catch (err) {
                 console.log("Error readying:", err);
+                cb({ok: false, error: err.message});
+            }
+        });
+
+        socket.on("changeInstrument", async (data, cb)=>{
+            try{
+                io.to(data.roomCode).emit(`instChanged`, data.song);
+                cb({ok: true});
+            } catch (err){
+                console.log("Error selecting inst:", err);
                 cb({ok: false, error: err.message});
             }
         })
@@ -88,11 +99,10 @@ export default function ioFunction(io) {
         //곡 변경 
         socket.on("changeSong", async (data, cb)=>{
             try{
-                console.log("Should only be sent to sockets in room:", data.roomCode);
-                io.to(data.roomCode).emit(`change`, data.song);
+                io.to(data.roomCode).emit(`songChanged`, data.song);
                 cb({ok: true})
             } catch (err) {
-                console.log("Error in changing song", err);
+                console.log("Error in changing song:", err);
                 cb({ok: false, error: err.message})
             }
         });
@@ -148,8 +158,6 @@ export default function ioFunction(io) {
             }
         });
 
-
-
         socket.on("hit", async(currentScore, cb)=>{
             currentScore ++;
             cb({ ok: true });
@@ -160,7 +168,7 @@ export default function ioFunction(io) {
             try {
                 const user = await User.findOneAndUpdate({socketId: socket.id}, {$set: {socketId: null, online: false}}, {new: true});
                 if(user){
-                    const room = await Room.findOne({players: {$in: [user.nickname]}});
+                    const room = await Room.findOne({ "players.nickname": nickname });
                     if (room){
                         const res = { status: () => {}, json: () => {} };
                         const req = {

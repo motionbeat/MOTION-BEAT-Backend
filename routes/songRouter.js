@@ -51,6 +51,27 @@ songRouter.get("/difficulty/:difficulty", songController.getSongByDifficulty);
 
 /**
  * @swagger
+ *  /songs/addrecent:
+ *    patch:
+ *      summary: "최근 플레이 곡 등록"
+ *      description: "플레이한 노래를 사용자의 최근 플레이 목록에 추가"
+ *      tags:
+ *      - song
+ *      produces:
+ *      - application/json
+ *      parameters:
+ *        - in: body
+ *      responses:
+ *       200:
+ *        description: Successfully added song to recent list
+ *       500:
+ *        description: Internal server error
+ *         
+ */
+songRouter.patch("/recent", songController.addRecentSong)
+
+/**
+ * @swagger
  *  /songs/favorite/{title}:
  *    patch:
  *      summary: "즐겨찾기 추가/제거"
