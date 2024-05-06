@@ -5,4 +5,6 @@ const openviduRouter = Router();
 
 openviduRouter.post("/", openviduController.makeSession)
 
+openviduRouter.post("/:sessionId/connections", openviduController.sessionToken);
+
 export default openviduRouter;

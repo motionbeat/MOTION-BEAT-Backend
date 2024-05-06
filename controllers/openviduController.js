@@ -12,6 +12,18 @@ const openviduController = {
             console.error("Error creating video session:", error);
             res.status(500).json({ error: "Failed to create video session" });
         }
+    },
+    sessionToken : async (req, res)=>{
+        try{
+            const session = OV.activeSessions.find(
+                (s) => s.sessionId === req.params.sessionId
+            );
+            if (!session){
+                res.status(404).send();
+            }
+        } catch(err) {
+            res.status(500).json({ error: "Failed to join video session" });
+        }
     }
 }
 
