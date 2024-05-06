@@ -1,1 +1,0 @@
-Hello, MOTION BEAT backend!
