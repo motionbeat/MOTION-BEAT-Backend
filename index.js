@@ -1,12 +1,7 @@
 // backend/index.js
 import express from "express";
+import session from "express-session";
 import bodyParser from "body-parser";
-<<<<<<< HEAD:backend/index.js
-import cors from "cors";
-
-const app = express();
-app.use(cors());
-=======
 
 // import cors from "cors";
 
@@ -29,18 +24,10 @@ import dotenv from "dotenv";
 dotenv.config();
 import {app} from "./app.js"
 
-// app.use(cors());
-
 // request parsing
->>>>>>> 4f77505a44d468e03d5484a84921e4b06456bf8e:index.js
 app.use(bodyParser.json());
+app.use(express.urlencoded({extended:true}));
 
-<<<<<<< HEAD:backend/index.js
-app.post("/echo", (req, res) => {
-  const message = req.body.message; // 요청에서 메시지를 받습니다.
-  res.json({ echo: message }); // 받은 메시지를 echo 필드에 담아 응답합니다.
-});
-=======
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*'); // Allow requests from any origin
     res.header('Access-Control-Allow-Methods', 'GET, POST, , PATCH, PUT, DELETE, OPTIONS'); // Specify the allowed HTTP methods
@@ -54,34 +41,18 @@ import {io, httpServer} from "./utils/socket.js";
 ioFunction(io);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
->>>>>>> 4f77505a44d468e03d5484a84921e4b06456bf8e:index.js
 
-app.get("/api/echo/:message", (req, res) => {
-  res.json({ echo: req.params.message });
-}); // 받은 메시지를 echo 필드에 담아 응답합니다.
+app.get("/kakao/url", (req, res, next) => {
+  console.log("/kakao/url start");
 
-if (
-  typeof chrome !== "undefined" &&
-  chrome.runtime &&
-  chrome.runtime.onMessage
-) {
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    asyncFunction(request).then((result) => {
-      sendResponse(result);
-    });
+  const url = KakaoClient.getAuthCodeURL();
 
-    // 이벤트 핸들러가 비동기 응답을 반환하므로 true를 반환합니다.
-    return true;
+  res.status(200).json({
+    url,
   });
-}
-
-const port = process.env.PORT || 5001; // 백엔드 서버 포트
-
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+  
+  console.log("/kakao/url finish");
 });
-<<<<<<< HEAD:backend/index.js
-=======
 
 app.use("/api/users", userRouter);
 
@@ -102,8 +73,3 @@ httpServer.listen(process.env.PORT, ()=>{
     console.log("Server listening on port", process.env.PORT);
     console.log("Application server connecting to OpenVidu at",  process.env.OPENVIDU_URL);
 });
-
-// app.listen(port, () => {
-//     console.log(`Server running on http://localhost:${port}`);
-// });
->>>>>>> 4f77505a44d468e03d5484a84921e4b06456bf8e:index.js
