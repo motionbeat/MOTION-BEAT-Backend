@@ -19,7 +19,14 @@ const gameSchema = new mongoose.Schema({
         required: true 
     },
     players: [{ 
-        nickname: { type: String, ref: 'User' }, 
+        nickname: { 
+            type: String, 
+            ref: 'User'
+        }, 
+        instrument: {
+            type: String,
+            ref: "Instrument"
+        },
         score: {
             type: Number,
             default: 0
