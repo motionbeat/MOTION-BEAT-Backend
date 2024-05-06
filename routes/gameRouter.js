@@ -1,8 +1,10 @@
 import { Router } from "express";
 import gameController from "../controllers/gameController.js"; 
+import createRateLimiter from "../middlewares/rateLimitMiddleware.js";
 
+const limiter = createRateLimiter();
 const gameRouter = Router();
 
-gameRouter.post("/start", gameController.startGame);
+gameRouter.post("/start", limiter, gameController.startGame);
 
 export default gameRouter;

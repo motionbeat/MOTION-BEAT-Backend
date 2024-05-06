@@ -1,6 +1,8 @@
 import { Router } from "express";
 import roomController from "../controllers/roomController.js"; 
+import createRateLimiter from "../middlewares/rateLimitMiddleware.js";
 
+const limiter = createRateLimiter();
 const roomRouter = Router();
 
 /**
@@ -41,16 +43,16 @@ const roomRouter = Router();
  *        description: Internal server error
  *         
  */
-roomRouter.post("/create", roomController.createRoom);
+roomRouter.post("/create", limiter, roomController.createRoom);
 
-roomRouter.patch("/leave", roomController.leaveRoom);
+roomRouter.patch("/leave", limiter, roomController.leaveRoom);
 
-roomRouter.post("/match", roomController.matchRoom);
+roomRouter.post("/match", limiter, roomController.matchRoom);
 // roomRouter.patch("/join/random", roomController.joinRoom);
 
-roomRouter.patch("/join/:code", roomController.joinRoomByCode);
+roomRouter.patch("/join/:code", limiter, roomController.joinRoomByCode);
 
-roomRouter.get("/check", roomController.checkStartGame);
+roomRouter.get("/check", limiter, roomController.checkStartGame);
 
 roomRouter.get("/playerinfo/:code", roomController.getPlayerInfo)
 
