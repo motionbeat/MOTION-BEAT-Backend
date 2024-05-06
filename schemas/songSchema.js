@@ -28,7 +28,7 @@ const songSchema = new mongoose.Schema({
         type:String,
         required:true 
     },
-    
+    notes: []
 });
 
 export default mongoose.model("Song", songSchema);
