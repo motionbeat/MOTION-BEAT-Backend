@@ -56,7 +56,7 @@ app.get("/kakao/url", (req, res, next) => {
 
 app.use("/api/users", userRouter);
 
-app.use('/api', authMiddleware);
+// app.use('/api', authMiddleware);
 
 app.use("/api/songs", songRouter);
 app.use("/api/rankings", rankingRouter);
