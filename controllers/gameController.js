@@ -32,6 +32,25 @@ const gameController = {
             res.status(500).json({ error: 'Internal server error' });
         }
     },
+
+    gameFinished: async(req, res)=>{
+        const { code } = req.body;
+
+        try{
+            const game = await Game.findOneAndUpdate(
+                { code },
+                { $set: { gameState: "finished" } },
+                { new: true }
+            );
+            if (!game){
+                console.log("NO GAME");
+            }
+            res.status(200).json(game);
+        } catch(err){
+            console.error('Error finishing game', err);
+            res.status(500).json({error: 'Internal server error'})
+        }
+    },
 }
 
 export default gameController;

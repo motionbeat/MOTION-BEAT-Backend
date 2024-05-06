@@ -7,4 +7,6 @@ const gameRouter = Router();
 
 gameRouter.post("/start", limiter, gameController.startGame);
 
+gameRouter.post("/finished", limiter, gameController.gameFinished);
+
 export default gameRouter;

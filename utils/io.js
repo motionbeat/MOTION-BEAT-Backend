@@ -6,6 +6,8 @@ import chatController from "../controllers/chatController.js";
 import roomController from "../controllers/roomController.js";
 import gameController from "../controllers/gameController.js";
 import mongoose from "mongoose"
+import songSchema from "../schemas/songSchema.js";
+import roomSchema from "../schemas/roomSchema.js";
 
 const loadedPlayersPerRoom = new Map();
 const endedPlayersPerRoom = new Map();
@@ -98,7 +100,10 @@ export default function ioFunction(io) {
 
         //곡 변경 
         socket.on("changeSong", async (data, cb)=>{
+            const {roomCode, song} = data;
+            console.log("CHECKING:", roomCode, song.number);
             try{
+                await Room.updateOne({code: roomCode}, {$set: {song: song.number}});
                 io.to(data.roomCode).emit(`songChanged`, data.song);
                 cb({ok: true})
             } catch (err) {
@@ -140,7 +145,7 @@ export default function ioFunction(io) {
         });
 
         // 게임 종료 확인
-        socket.on('gameEnded', async ({nickname, code})=>{
+        socket.on('gameEnded', async ({nickname, code, score})=>{
             let endedPlayers = endedPlayersPerRoom.get(code);
             try{ 
                 if (!endedPlayers) {
@@ -150,16 +155,25 @@ export default function ioFunction(io) {
                 endedPlayers.add(nickname);
         
                 const game = await Game.findOne({ code })
-                if (game && game.players.length === endedPlayers.size) {
-                    io.emit(`allPlayersEnded${code}`);
+                if (game) {
+                    // Update player's score
+                    const playerIndex = game.players.findIndex(player => player.nickname === nickname);
+                    if (playerIndex !== -1) {
+                        game.players[playerIndex].score += score;
+                        await game.save();
+                    }
+                    
+                    if (game.players.length === endedPlayers.size) {                    
+                        io.emit(`allPlayersEnded${code}`);
+                    }
                 }
             } catch (err) {
                 console.error('방 확인 중 오류 발생:', err);
             }
         });
 
-        socket.on("hit", async(currentScore, cb)=>{
-            io.to().emit(currentScore)
+        socket.on("hit", async(code, currentScore, cb)=>{
+            io.to(code).emit(currentScore)
             cb({ ok: true });
         });
 
@@ -171,7 +185,7 @@ export default function ioFunction(io) {
                     const room = await Room.findOne({ "players.nickname": nickname });
                     if (room){
                         const res = { status: () => {}, json: () => {} };
-                        const req = {
+                        const req = { 
                             body : {
                                 live : true,
                                 code : room.code
