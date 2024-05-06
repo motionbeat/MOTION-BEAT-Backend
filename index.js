@@ -24,8 +24,6 @@ import dotenv from "dotenv";
 dotenv.config();
 import {app} from "./app.js"
 
-// app.use(cors());
-
 // request parsing
 app.use(bodyParser.json());
 app.use(express.urlencoded({extended:true}));
@@ -45,15 +43,15 @@ ioFunction(io);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 app.get("/kakao/url", (req, res, next) => {
-    console.log("/kakao/url start");
+  console.log("/kakao/url start");
+
+  const url = KakaoClient.getAuthCodeURL();
+
+  res.status(200).json({
+    url,
+  });
   
-    const url = KakaoClient.getAuthCodeURL();
-  
-    res.status(200).json({
-      url,
-    });
-    
-    console.log("/kakao/url finish");
+  console.log("/kakao/url finish");
 });
 
 app.use("/api/users", userRouter);
@@ -75,7 +73,3 @@ httpServer.listen(process.env.PORT, ()=>{
     console.log("Server listening on port", process.env.PORT);
     console.log("Application server connecting to OpenVidu at",  process.env.OPENVIDU_URL);
 });
-
-// app.listen(port, () => {
-//     console.log(`Server running on http://localhost:${port}`);
-// });
