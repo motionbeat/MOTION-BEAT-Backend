@@ -25,6 +25,8 @@ dotenv.config();
 import {app} from "./app.js"
 
 // request parsing
+// Allow application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.urlencoded({extended:true}));
 
