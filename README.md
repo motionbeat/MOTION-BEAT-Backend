@@ -1,2 +1,48 @@
-# MOTION-BEAT
-4교육장 14-18주차 (2024.4.19(금) ~ 2024.5.23(목)) 나만의 무기 갖기 2조: 사나이팀
+# Backend
+
+BE
+
+/  
+├── .gitignore  
+├── app.js  
+├── index.js  
+├── package-lock.json  
+├── package.json  
+├── README.md  
+├── /config  
+│ └── db.js  
+├── /controllers  
+│ ├── chatController.js  
+│ ├── chatroomController.js  
+│ ├── gameController.js  
+│ ├── rankingController.js  
+│ ├── songController.js  
+│ └── userController.js  
+├── /middlewares  
+│ ├── adminAuth.js  
+│ └── authMiddleware.js  
+├── /modules  
+│ └── swagger.js  
+├── /routes  
+│ ├── chatroomRouter.js  
+│ ├── gameRouter.js  
+│ ├── rankingRouter.js  
+│ ├── roomRouter.js  
+│ ├── songRouter.js  
+│ └── userRouter.js  
+├── /schemas  
+│ ├── chatroomSchema.js  
+│ ├── chatSchema.js  
+│ ├── gameSchema.js  
+│ ├── instrumentSchema.js  
+│ ├── rankingSchema.js  
+│ ├── roomSchema.js  
+│ ├── songSchema.js  
+│ └── userSchema.js  
+├── /social  
+│ └── kakao.js  
+├── /swagger  
+│ └── user.yml  
+├── /utils  
+│ ├── io.js  
+│ └── socket.js
