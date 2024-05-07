@@ -19,11 +19,7 @@ export default function ioFunction(io) {
         //사용자 로그인: 로그인 시 사용자에 소켓 ID 등록
         socket.on("login", async (nickname, cb) => {
             try {
-                const currentUser = await User.findOneAndUpdate(
-                    { nickname }, 
-                    {$set: {socketId: socket.id}, online: true}, 
-                    {new: true}
-                );
+                const currentUser = await userController.loginUserAndUpdateSocketId(socket.id, nickname);
                 if (currentUser) {
                     io.emit('userStatus', { nickname, online: true });
                     console.log("User logged in successfully:", currentUser);
@@ -33,7 +29,6 @@ export default function ioFunction(io) {
                     cb({ok: false, error: "User not found"});
                 }
             } catch (err) {
-                console.log("Error updating user:", err);
                 cb({ok: false, error: err.message});
             }
         });
@@ -42,7 +37,7 @@ export default function ioFunction(io) {
         socket.on("sendMessage", async (message, cb)=>{
             try{
                 const user = await userController.checkUser(socket.id);
-                const room = await Room.findOne({ "players.nickname": user.nickname });
+                const room = await roomController.findRoomByPlayerNickname(user.nickname);
 
                 console.log(room.code)
                 if (!room){
@@ -65,7 +60,6 @@ export default function ioFunction(io) {
                 io.emit(`players${code}`, roomPlayers);
                 cb({ok: true});
             } catch(err){
-                console.log("Error in joining room:", err);
                 cb({ok: false, error: err.message});
             }
         });
@@ -74,6 +68,7 @@ export default function ioFunction(io) {
         socket.on("ready", async (cb)=>{
             try{
                 const user = await userController.toggleReady(socket.id);
+
                 const { isReady, nickname } = user;
                 const userReady = {
                     isReady, 
@@ -88,6 +83,7 @@ export default function ioFunction(io) {
             }
         });
 
+        //플레이어 악기 선택/변경
         socket.on("changeInstrument", async (data, cb)=>{
             try{
                 io.to(data.roomCode).emit(`instChanged`, data.song);
