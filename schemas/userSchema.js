@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
         default: []
     },
     recentlyPlayed: [{
-        type: mongoose.Schema.Types.ObjectId,
+        type: Number,
         ref: 'Song'
     }],
     friends: {
@@ -65,7 +65,8 @@ const userSchema = new mongoose.Schema({
     instrument: {
         type: String,
         ref: "Instrument"
-    }
+    },
+    
 });
 
 userSchema.statics.findAndValidate =  async function (email, pw){

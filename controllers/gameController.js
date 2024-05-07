@@ -35,7 +35,7 @@ const gameController = {
 
     gameFinished: async(req, res)=>{
         const { code } = req.body;
-
+        const { nickname } = req.headers
         try{
             const game = await Game.findOneAndUpdate(
                 { code },
@@ -45,6 +45,10 @@ const gameController = {
             if (!game){
                 console.log("NO GAME");
             }
+            if (nickname.recentlyPlayed.length > 4){
+                await User.updateOne({ nickname }, { $pull: { recentlyPlayed: nickname.recentlyPlayed[0] } });
+            }
+            await User.updateOne({ nickname }, { $push: { recentlyPlayed: game.song } });
             res.status(200).json(game);
         } catch(err){
             console.error('Error finishing game', err);
@@ -55,16 +59,16 @@ const gameController = {
         const { code }= req.body
         const { nickname }= req.headers
         try{
-            // const game = await Game.findOne({code});
-            // if (game){
-            //     const currentGame = await Game.findOneAndUpdate({code}, { $pull: { players: { nickname } }}, {new: true});
-            //     if (game.players.length === 0){
-            //         Game.deleteOne({code});
+            const game = await Game.findOne({code});
+            if (game){
+                const currentGame = await Game.findOneAndUpdate({code}, { $pull: { players: { nickname } }}, {new: true});
+                if (game.players.length === 0){
+                    Game.deleteOne({code});
             //         if (req.body.live){
             //             return false;
             //         }
-            //     }
-            // }
+                }
+            }
             // if (req.body.live){
             //     return currentGame;
             // }

@@ -76,6 +76,9 @@ export default function ioFunction(io) {
                 }
                 const room = await Room.findOne({ "players.nickname": nickname });
                 io.to(room.code).emit("readyStatus", userReady);
+                if(room.players.every(player => player.nickname !== room.hostName && player.isReady)){
+                    io.to(room.code.emit("allReady", true))
+                }
                 cb({ok: true})
             } catch (err) {
                 console.log("Error readying:", err);
