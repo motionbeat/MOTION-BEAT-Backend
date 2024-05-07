@@ -3,6 +3,7 @@ import userController from "../controllers/userController.js";
 import authMiddleware from "../middlewares/authMiddleware.js";
 import createRateLimiter from "../middlewares/rateLimitMiddleware.js";
 
+
 const limiter = createRateLimiter();
 const userRouter = Router();
 

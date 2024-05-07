@@ -1,6 +1,8 @@
 import { Router } from "express";
 import roomController from "../controllers/roomController.js"; 
 import createRateLimiter from "../middlewares/rateLimitMiddleware.js";
+import adminAuth from "../middlewares/adminAuth.js";
+
 
 const limiter = createRateLimiter();
 const roomRouter = Router();
@@ -56,7 +58,7 @@ roomRouter.get("/check", limiter, roomController.checkStartGame);
 
 roomRouter.get("/playerinfo/:code", roomController.getPlayerInfo)
 
-roomRouter.delete("/:code", roomController.deleteRoom);
+roomRouter.delete("/admin/delete", adminAuth, roomController.resetRooms);
 
 
 export default roomRouter;
