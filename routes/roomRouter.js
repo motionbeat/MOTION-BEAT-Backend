@@ -4,7 +4,7 @@ import createRateLimiter from "../middlewares/rateLimitMiddleware.js";
 import adminAuth from "../middlewares/adminAuth.js";
 
 
-const limiter = createRateLimiter();
+const limiter = createRateLimiter({ trustProxy: true });
 const roomRouter = Router();
 
 /**

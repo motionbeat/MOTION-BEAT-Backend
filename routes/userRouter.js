@@ -4,7 +4,7 @@ import authMiddleware from "../middlewares/authMiddleware.js";
 import createRateLimiter from "../middlewares/rateLimitMiddleware.js";
 
 
-const limiter = createRateLimiter();
+const limiter = createRateLimiter({ trustProxy: true });
 const userRouter = Router();
 
 

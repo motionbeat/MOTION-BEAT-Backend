@@ -2,7 +2,7 @@ import { Router } from "express";
 import rankingController from "../controllers/rankingController.js"; 
 import createRateLimiter from "../middlewares/rateLimitMiddleware.js";
 
-const limiter = createRateLimiter();
+const limiter = createRateLimiter({ trustProxy: true });
 const rankingRouter = Router();
 
 /**

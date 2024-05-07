@@ -3,7 +3,7 @@ import songController from "../controllers/songController.js";
 import adminAuth from "../middlewares/adminAuth.js";
 import createRateLimiter from "../middlewares/rateLimitMiddleware.js";
 
-const limiter = createRateLimiter();
+const limiter = createRateLimiter({ trustProxy: true });
 const songRouter = Router();
 
 /**

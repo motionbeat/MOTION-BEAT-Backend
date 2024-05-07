@@ -2,7 +2,7 @@ import { Router } from "express";
 import instrumentController from "../controllers/instrumentController.js"; 
 import createRateLimiter from "../middlewares/rateLimitMiddleware.js";
 
-const limiter = createRateLimiter();
+const limiter = createRateLimiter({ trustProxy: true });
 const instrumentRouter = Router();
 
 instrumentRouter.get("/", limiter, instrumentController.showInstruments);
