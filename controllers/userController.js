@@ -118,6 +118,27 @@ const userController = {
             res.status(500).json({message : err.message});
         }
     },
+
+    changeSettings: async(req, res)=>{
+        const {nickname} = req.headers;
+        const { lobbyVolume, buttonVolume, gameVolume } = req.body;
+        try {
+            const user = await User.findOne({nickname});
+
+        } catch (err){
+            res.status(500).json({message:err.message});
+        }
+    },
+
+    /* Socket */
+
+    loginUserAndUpdateSocketId: async(sid, nickname) =>{
+        return await User.findOneAndUpdate(
+            { nickname },
+            { $set: { socketId, online: true } },
+            { new: true }
+        );
+    },
     checkUser: async (sid)=>{
         const user = await User.findOne({socketId:sid});
         if (!user) throw new Error("user not found");
@@ -132,16 +153,6 @@ const userController = {
 
         return user;
     },
-    changeSettings: async(req, res)=>{
-        const {nickname} = req.headers;
-        const { lobbyVolume, buttonVolume, gameVolume } = req.body;
-        try {
-            const user = await User.findOne({nickname});
-
-        } catch (err){
-            res.status(500).json({message:err.message});
-        }
-    }
 }
 
 export default userController
