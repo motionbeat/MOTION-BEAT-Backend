@@ -12,8 +12,16 @@ const rateLimitOption = {
 };
 
 // Rate limiting middleware function
-const createRateLimiter = (options = rateLimitOption) => {
-  return rateLimit(options);
-};
+const createRateLimiter = (options = {}) => {
+  // Trust only specific proxies and use the client's IP address from X-Forwarded-For header
+  const trustProxy = options.trustProxy || ['loopback', 'linklocal', 'uniquelocal'];
 
+  const rateLimitOptions = {
+    ...rateLimitOption,
+    trustProxy,
+    ...options
+  };
+
+  return rateLimit(rateLimitOptions);
+};
 export default createRateLimiter;
