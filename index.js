@@ -33,7 +33,7 @@ app.use(express.urlencoded({extended:true}));
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*'); // Allow requests from any origin
     res.header('Access-Control-Allow-Methods', 'GET, POST, , PATCH, PUT, DELETE, OPTIONS'); // Specify the allowed HTTP methods
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization'); // Specify the allowed headers
+    res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization'); // Specify the allowed headers
     next();
   });
 
