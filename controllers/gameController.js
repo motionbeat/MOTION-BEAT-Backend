@@ -51,6 +51,29 @@ const gameController = {
             res.status(500).json({error: 'Internal server error'})
         }
     },
+    leaveGame: async(req, res)=>{
+        const { code }= req.body
+        const { nickname }= req.headers
+        try{
+            // const game = await Game.findOne({code});
+            // if (game){
+            //     const currentGame = await Game.findOneAndUpdate({code}, { $pull: { players: { nickname } }}, {new: true});
+            //     if (game.players.length === 0){
+            //         Game.deleteOne({code});
+            //         if (req.body.live){
+            //             return false;
+            //         }
+            //     }
+            // }
+            // if (req.body.live){
+            //     return currentGame;
+            // }
+            // return;
+            res.status(200).json({message:"Successfully ended"});
+        } catch (err) {
+            res.status(500).json({error: 'Internal server error'})
+        }
+    }
 }
 
 export default gameController;

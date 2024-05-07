@@ -125,7 +125,6 @@ const roomController = {
         try{
             const room = await Room.findOne({code});
             if (room){
-                console.log(room.players)
                 return room.players;
             } else {
                 return false;

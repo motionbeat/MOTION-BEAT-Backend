@@ -115,7 +115,7 @@ export default function ioFunction(io) {
         // 방 나가기 및 방 정보 갱신
         socket.on("leaveRoom", async (code, cb)=>{
             try{
-                const roomPlayers = await roomController.getPlayerInfo(code); 
+                const roomPlayers = await roomController.getPlayerInfo(code);            
                 socket.leave(code);
                 if (roomPlayers){
                     io.emit(`leftRoom${code}`, roomPlayers);
@@ -194,13 +194,30 @@ export default function ioFunction(io) {
                                 nickname:  user.nickname
                             }
                         };
-                        const testRoom = await roomController.leaveRoom(req, res);
-                        if (testRoom){
+                        const leftRoom = await roomController.leaveRoom(req, res);
+                        if (leftRoom){
                             const roomPlayers = await roomController.getPlayerInfo(room.code)
                             socket.leave(room.code);
                             io.to(room.code).emit("leftRoom", roomPlayers)
                         }
                     }
+                    // const game = await Game.findOne({ "players.nickname": nickname });
+                    // if (game){
+                    //     const res = { status: () => {}, json: () => {} };
+                    //     const req = { 
+                    //         body : {
+                    //             live : true,
+                    //             code : game.code
+                    //         },
+                    //         headers: {
+                    //             nickname:  user.nickname
+                    //         }
+                    //     };
+                    //     const leftGame = await gameController.leaveGame(req, res);
+                    //     if (leftGame){
+                    //         socket.leave(room.code);
+                    //     }
+                    // }
                     io.emit('userStatus', { nickname: user.nickname, online: false });
                 }
                 console.log("User is disconnected");

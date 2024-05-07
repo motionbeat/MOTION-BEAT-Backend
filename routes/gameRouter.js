@@ -7,6 +7,8 @@ const gameRouter = Router();
 
 gameRouter.post("/start", limiter, gameController.startGame);
 
-gameRouter.post("/finished", limiter, gameController.gameFinished);
+gameRouter.post("/finished", gameController.gameFinished);
+
+gameRouter.patch("/leave", gameController.leaveGame);
 
 export default gameRouter;
