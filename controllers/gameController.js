@@ -15,18 +15,11 @@ const gameController = {
                 return res.status(404).json({ error: 'Room not found' });
             }
 
-            // const players = room.players.map(playerId => ({
-            //     nickname: playerId.nickname,
-            //     instrument: playerId.instrument,
-            //     score: 0
-            // }));
-            const players = room.players;
-
             const game = new Game({
                 code: code,
                 song: room.song, 
                 gameState : "playing",
-                players       
+                players : room.players 
             });
             await game.save();
             room.gameState = "playing";
@@ -39,6 +32,48 @@ const gameController = {
             res.status(500).json({ error: 'Internal server error' });
         }
     },
+
+    gameFinished: async(req, res)=>{
+        const { code } = req.body;
+
+        try{
+            const game = await Game.findOneAndUpdate(
+                { code },
+                { $set: { gameState: "finished" } },
+                { new: true }
+            );
+            if (!game){
+                console.log("NO GAME");
+            }
+            res.status(200).json(game);
+        } catch(err){
+            console.error('Error finishing game', err);
+            res.status(500).json({error: 'Internal server error'})
+        }
+    },
+    leaveGame: async(req, res)=>{
+        const { code }= req.body
+        const { nickname }= req.headers
+        try{
+            // const game = await Game.findOne({code});
+            // if (game){
+            //     const currentGame = await Game.findOneAndUpdate({code}, { $pull: { players: { nickname } }}, {new: true});
+            //     if (game.players.length === 0){
+            //         Game.deleteOne({code});
+            //         if (req.body.live){
+            //             return false;
+            //         }
+            //     }
+            // }
+            // if (req.body.live){
+            //     return currentGame;
+            // }
+            // return;
+            res.status(200).json({message:"Successfully ended"});
+        } catch (err) {
+            res.status(500).json({error: 'Internal server error'})
+        }
+    }
 }
 
 export default gameController;

@@ -13,7 +13,7 @@ const roomSchema = new mongoose.Schema({
         unique: true
     }, 
     song:{
-        type:String,
+        type: Number,
         required:true,
     },
     type:{

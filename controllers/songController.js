@@ -16,9 +16,9 @@ const songController = {
 
     getSongByNumber: async(req, res) =>{
         try{
-            const song = await Song.find({number: req.params.number});
+            const song = await Song.findOne({number: req.params.number});
             if(song){
-                res.json(song);
+                res.status(200).json(song);
             } else {
                 res.status(404).json({message: "곡을 찾을 수 없습니다."});
             }

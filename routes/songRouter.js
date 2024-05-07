@@ -1,7 +1,9 @@
 import { Router } from "express";
 import songController from "../controllers/songController.js"; 
 import adminAuth from "../middlewares/adminAuth.js";
+import createRateLimiter from "../middlewares/rateLimitMiddleware.js";
 
+const limiter = createRateLimiter();
 const songRouter = Router();
 
 /**
@@ -21,7 +23,7 @@ const songRouter = Router();
  *        description: Internal server error
  *         
  */
-songRouter.get("/", songController.getAllSongs);
+songRouter.get("/", limiter, songController.getAllSongs);
 
 /**
  * @swagger
@@ -47,7 +49,7 @@ songRouter.get("/", songController.getAllSongs);
  *        description: Internal server error
  *         
  */
-songRouter.get("/difficulty/:difficulty", songController.getSongByDifficulty);
+songRouter.get("/difficulty/:difficulty", limiter, songController.getSongByDifficulty);
 
 /**
  * @swagger
@@ -68,7 +70,7 @@ songRouter.get("/difficulty/:difficulty", songController.getSongByDifficulty);
  *        description: Internal server error
  *         
  */
-songRouter.patch("/recent", songController.addRecentSong)
+songRouter.patch("/recent", limiter, songController.addRecentSong)
 
 /**
  * @swagger
@@ -89,7 +91,7 @@ songRouter.patch("/recent", songController.addRecentSong)
  *        description: Internal server error
  *         
  */
-songRouter.patch("/favorite/:title", songController.updateFavorite);
+songRouter.patch("/favorite/:title", limiter, songController.updateFavorite);
 
 /**
  * @swagger
@@ -110,7 +112,7 @@ songRouter.patch("/favorite/:title", songController.updateFavorite);
  *        description: Internal server error
  *         
  */
-songRouter.get("/favorite", songController.getFavoriteSongs);
+songRouter.get("/favorite", limiter, songController.getFavoriteSongs);
 
 /**
  * @swagger
@@ -174,7 +176,7 @@ songRouter.post("/add", adminAuth, songController.addSong);
  *        description: Internal server error
  *         
  */
-songRouter.get("/random", songController.randomSong);
+songRouter.get("/random", limiter, songController.randomSong);
 
 /**
  * @swagger
@@ -200,7 +202,7 @@ songRouter.get("/random", songController.randomSong);
  *        description: Internal server error
  *         
  */
-songRouter.get("/:number", songController.getSongByNumber);
+songRouter.get("/:number", limiter, songController.getSongByNumber);
 
 
 

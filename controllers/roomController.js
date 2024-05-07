@@ -121,22 +121,7 @@ const roomController = {
             res.status(500).json({message: "Internal Server Error"});            
         }
     },
-    getPlayerInfo: async(code)=>{
-        try{
-            const room = await Room.findOne({code});
-            if (room){
-                console.log(room.players)
-                return room.players;
-            } else {
-                return false;
-            }
-        } catch (err){
-            throw err;
-        }
-    },
-    deleteRoom: async (req, res)=>{
-     
-    },
+
     checkStartGame : async(req, res)=>{
         const { code } = req.body;
         const gameRoom = await Room.findOne({ code });
@@ -155,6 +140,35 @@ const roomController = {
                 return res.json({message: "모든 플레이어가 준비를 완료하지 않았습니다."})
             } 
             res.status(200).json({canStart : true});
+        } catch (err) {
+            res.status(500).json({message: err.message });
+        }
+    },
+
+    /* Socket */
+
+    getPlayerInfo: async(code)=>{
+        try{
+            const room = await Room.findOne({code});
+            if (room){
+                return room.players;
+            } else {
+                return false;
+            }
+        } catch (err){
+            throw err;
+        }
+    },
+
+    findRoomByPlayerNickname : async (nickname) => {
+        return await Room.findOne({ "players.nickname": nickname });
+    },
+    /* Admin */
+
+    resetRooms: async(req, res)=>{
+        try{
+            await Room.deleteMany({});
+            res.status(200).json ({message: "successfully deleted all rooms"})
         } catch (err) {
             res.status(500).json({message: err.message });
         }

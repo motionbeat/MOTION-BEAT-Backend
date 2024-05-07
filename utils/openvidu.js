@@ -1,4 +1,4 @@
-import OpenVidu from "openvidu-node-client";
+import {OpenVidu} from "openvidu-node-client";
 
 const OV = new OpenVidu(process.env.OPENVIDU_URL, process.env.OPENVIDU_SECRET);
 
