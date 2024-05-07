@@ -15,25 +15,63 @@ const gameController = {
                 return res.status(404).json({ error: 'Room not found' });
             }
 
-            const players = room.players.map(playerId => ({
-                nickname: playerId,
-                score: 0
-            }));
-
             const game = new Game({
-                code,
+                code: code,
                 song: room.song, 
                 gameState : "playing",
-                players           
+                players : room.players 
             });
             await game.save();
             room.gameState = "playing";
-            await room.save();            
-            io.emit("gameStarted",  game);
+            await room.save();
+            io.emit(`gameStarted${code}`,  game);
+
             res.status(200).json(game);
         } catch (error) {
             console.error('Error starting game:', error);
             res.status(500).json({ error: 'Internal server error' });
+        }
+    },
+
+    gameFinished: async(req, res)=>{
+        const { code } = req.body;
+
+        try{
+            const game = await Game.findOneAndUpdate(
+                { code },
+                { $set: { gameState: "finished" } },
+                { new: true }
+            );
+            if (!game){
+                console.log("NO GAME");
+            }
+            res.status(200).json(game);
+        } catch(err){
+            console.error('Error finishing game', err);
+            res.status(500).json({error: 'Internal server error'})
+        }
+    },
+    leaveGame: async(req, res)=>{
+        const { code }= req.body
+        const { nickname }= req.headers
+        try{
+            // const game = await Game.findOne({code});
+            // if (game){
+            //     const currentGame = await Game.findOneAndUpdate({code}, { $pull: { players: { nickname } }}, {new: true});
+            //     if (game.players.length === 0){
+            //         Game.deleteOne({code});
+            //         if (req.body.live){
+            //             return false;
+            //         }
+            //     }
+            // }
+            // if (req.body.live){
+            //     return currentGame;
+            // }
+            // return;
+            res.status(200).json({message:"Successfully ended"});
+        } catch (err) {
+            res.status(500).json({error: 'Internal server error'})
         }
     }
 }

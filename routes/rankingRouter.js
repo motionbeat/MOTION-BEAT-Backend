@@ -1,6 +1,8 @@
 import { Router } from "express";
 import rankingController from "../controllers/rankingController.js"; 
+import createRateLimiter from "../middlewares/rateLimitMiddleware.js";
 
+const limiter = createRateLimiter();
 const rankingRouter = Router();
 
 /**
@@ -26,8 +28,8 @@ const rankingRouter = Router();
  *        description: Internal server error
  *         
  */
-rankingRouter.get("/:title", rankingController.getRankingBySong);
+rankingRouter.get("/:title", limiter, rankingController.getRankingBySong);
 
-rankingRouter.get("/:title/instrument/:instrument", rankingController.getRankingByInstrument)
+rankingRouter.get("/:title/instrument/:instrument", limiter, rankingController.getRankingByInstrument)
 
 export default rankingRouter;

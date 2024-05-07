@@ -16,9 +16,9 @@ const songController = {
 
     getSongByNumber: async(req, res) =>{
         try{
-            const song = await Song.find({number: req.params.number});
+            const song = await Song.findOne({number: req.params.number});
             if(song){
-                res.json(song);
+                res.status(200).json(song);
             } else {
                 res.status(404).json({message: "곡을 찾을 수 없습니다."});
             }
@@ -92,6 +92,21 @@ const songController = {
             return randomSong;
         } catch (err) {
             throw err;
+        }
+    },
+    addRecentSong: async (req, res)=>{
+        const songNumber = req.body;
+        const nickname = req.headers;
+        try{
+            const song = Song.findOne({number: songNumber});
+            const currentUser = User.findOne({nickname});
+            currentUser.recentlyPlayed.unshift(song.title);
+            if (currentUser.recentlyPlayed.length > 5){
+                currentUser.recentlyPlayed.pop();
+            }
+            res.status(200).json({message: "성공적으로 노래를 등록했습니다."});
+        } catch (err) {
+            res.status(500).json({message: err.message});
         }
     }
 }

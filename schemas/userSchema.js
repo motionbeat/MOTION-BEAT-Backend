@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
         type: Array,
         default: []
     },
+    recentlyPlayed: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Song'
+    }],
     friends: {
         type: Array,
         default: []
@@ -43,6 +47,24 @@ const userSchema = new mongoose.Schema({
     isReady: {
         type: Boolean,
         default: false
+    },
+    settings: {
+        lobbyVolume: {
+            type: Number,
+            default: 50
+        },
+        buttonVolume: {
+            type: Number,
+            default: 50   
+        },
+        gameVolume: {
+            type: Number,
+            default: 50
+        }
+    },
+    instrument: {
+        type: String,
+        ref: "Instrument"
     }
 });
 
@@ -58,5 +80,9 @@ userSchema.pre("save", async function(next){
     console.log(this);
     next();
 })
+
+userSchema.methods.populateRecentSongs = async function () {
+    await this.populate('recentlyPlayed').execPopulate();
+};
 
 export default mongoose.model("User", userSchema);

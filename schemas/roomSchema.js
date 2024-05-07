@@ -13,20 +13,23 @@ const roomSchema = new mongoose.Schema({
         unique: true
     }, 
     song:{
-        type:String,
+        type: Number,
         required:true,
     },
     type:{
         type:String,
         required:true        
     },
-    players: [
-        {
-          type: String,
-          unique: true,
-          ref: "User",
+    players: [{
+        nickname: {
+            type: String,
+            ref: "User"
         },
-    ],
+        instrument: {
+            type: String,
+            ref: "Instrument"
+        }
+      }],
     gameState: {
         type: String,
         required: true,

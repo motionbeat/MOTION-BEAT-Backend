@@ -1,7 +1,9 @@
 import { Router } from "express";
 import userController from "../controllers/userController.js"; 
 import authMiddleware from "../middlewares/authMiddleware.js";
+import createRateLimiter from "../middlewares/rateLimitMiddleware.js";
 
+const limiter = createRateLimiter();
 const userRouter = Router();
 
 
@@ -22,10 +24,10 @@ const userRouter = Router();
  *        description: Internal server error
  *         
  */
-userRouter.get("/", userController.getAllUsers);
+userRouter.get("/", limiter, userController.getAllUsers);
 
 //사용자 친구목록
-userRouter.get("/friends", authMiddleware, userController.getAllFriends);
+userRouter.get("/friends", authMiddleware, limiter, userController.getAllFriends);
 
 /**
  * @swagger
@@ -64,7 +66,7 @@ userRouter.get("/friends", authMiddleware, userController.getAllFriends);
  *        description: Internal server error
  *         
  */
-userRouter.post("/signup", userController.createUser);
+userRouter.post("/signup", limiter, userController.createUser);
 
 /**
  * @swagger
@@ -102,7 +104,7 @@ userRouter.post("/signup", userController.createUser);
  *        description: Internal server error
  *         
  */
-userRouter.post("/login", userController.loginUser);
+userRouter.post("/login", limiter, userController.loginUser);
 
 /**
  * @swagger
@@ -125,7 +127,26 @@ userRouter.post("/login", userController.loginUser);
  *        description: Internal server error
  *         
 */
-userRouter.patch("/logout", authMiddleware, userController.logoutUser);
+userRouter.patch("/logout", authMiddleware, limiter, userController.logoutUser);
+
+/**
+ * @swagger
+ *  /users:
+ *    get:
+ *      summary: "최근 플레이 곡 조회"
+ *      description: "GET 방식으로 최근 플레이 목록 5개 조회"
+ *      tags:
+ *      - user
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       200:
+ *        description: Successfully found recent songs
+ *       500:
+ *        description: Internal server error
+ *         
+ */
+userRouter.get("/recent", limiter, userController.getRecentSongs)
 
 /**
  * @swagger
@@ -146,7 +167,7 @@ userRouter.patch("/logout", authMiddleware, userController.logoutUser);
  *        description: Internal server error
  *         
  */
-userRouter.get("/:id", userController.getUser);
+userRouter.get("/:id", limiter, userController.getUser);
 
 // userRouter.delete("/:id", userController.deleteUser);
 

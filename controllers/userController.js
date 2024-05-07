@@ -1,3 +1,4 @@
+import {io} from "../utils/socket.js";
 import User from "../schemas/userSchema.js";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
@@ -28,16 +29,35 @@ const userController = {
     },
     
     getAllFriends: async (req,res) =>{
-        const { _id } = req.session.userId;
         try {
-            const user = await User.findById(_id);
-            res.json(user.friends)
+            const currentUser = await User.findById(req.headers.userid);
+            const friendNicknames = currentUser.friends;
+            const friendsOnlineStatus = await User.find(
+                { nickname: { $in: friendNicknames } },
+                { nickname: 1, online: 1, _id: 0 }
+            );
+            const friendsWithStatus = friendNicknames.map(nickname => {
+                const friendStatus = friendsOnlineStatus.find(friend => friend.nickname === nickname);
+                const online = friendStatus ? friendStatus.online : false;
+                return { nickname, online };
+            });
+    
+            res.json(friendsWithStatus);
         } catch (err) {
             console.log(err);
             res.status(500).json({message: err.message});
         }
     },
-
+    getRecentSongs: async(req, res)=>{
+        const {nickname} = req.headers;
+        try{
+            const currentUser = await User.findOne({nickname});
+            const recentSongs = await currentUser.populateRecentSongs();
+            res.status(200).json(recentSongs)
+        } catch (err) {
+            res.status(500).json({message: err.message});
+        }
+    },
     createUser: async (req, res) =>{
         const { email, nickname, pw } = req.body;
         let isValid = await User.findOne({ email })
@@ -92,6 +112,7 @@ const userController = {
         try{
             await currentUser.save();
             console.log(currentUser);
+            io.emit('userStatus', { nickname: currentUser.nickname, online: false });
             res.status(200).json({message: "로그아웃 성공!"});
         } catch (err) {
             res.status(500).json({message : err.message});
@@ -110,6 +131,16 @@ const userController = {
         await user.save();
 
         return user;
+    },
+    changeSettings: async(req, res)=>{
+        const {nickname} = req.headers;
+        const { lobbyVolume, buttonVolume, gameVolume } = req.body;
+        try {
+            const user = await User.findOne({nickname});
+
+        } catch (err){
+            res.status(500).json({message:err.message});
+        }
     }
 }
 

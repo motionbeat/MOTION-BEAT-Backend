@@ -27,7 +27,8 @@ const songSchema = new mongoose.Schema({
     difficulty: {
         type:String,
         required:true 
-    }
+    },
+    notes: []
 });
 
 export default mongoose.model("Song", songSchema);

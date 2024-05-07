@@ -18,6 +18,9 @@ const instrumentSchema = new mongoose.Schema({
     },
     motion4 : {
         type: String
+    },
+    imgPath: {
+        type: String,
     }
 });
 
