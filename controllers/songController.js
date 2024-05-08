@@ -83,7 +83,7 @@ const songController = {
             res.status(500).json({ message: err.message });
         }
     },
-    randomSong: async (req, res)=>{
+    randomSong: async ()=>{
         try{
             const docCount = await Song.countDocuments()
             const randomValue = Math.floor(Math.random() * docCount);
