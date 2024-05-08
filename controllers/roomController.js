@@ -23,11 +23,11 @@ const roomController = {
         const { type } = req.body;
         let code = makeCode();
         try{
-            let song = await songController.randomSong();
+            const song = await songController.randomSong().number;
             const room = new Room({ 
                 code, 
                 hostName: nickname, 
-                song: song.number, 
+                song: song, 
                 type, 
                 gameState: "waiting"
             });

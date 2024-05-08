@@ -95,8 +95,8 @@ const songController = {
         }
     },
     addRecentSong: async (req, res)=>{
-        const songNumber = req.body;
-        const nickname = req.headers;
+        const { songNumber } = req.body;
+        const { nickname } = req.headers;
         try{
             const song = Song.findOne({number: songNumber});
             const currentUser = User.findOne({nickname});
@@ -105,6 +105,20 @@ const songController = {
                 currentUser.recentlyPlayed.pop();
             }
             res.status(200).json({message: "성공적으로 노래를 등록했습니다."});
+        } catch (err) {
+            res.status(500).json({message: err.message});
+        }
+    }, 
+    getRecentlyPlayed: async(req, res)=>{
+        const { nickname } = req.headers;
+        try{
+            const currentUser = await User.findOne({ nickname });
+            if (!currentUser) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            const recentlyPlayed = currentUser.recentlyPlayed; 
+            const songsArray = await Song.find({ number: { $in: recentlyPlayed } });
+            res.status(200).json({recentlyPlayed:songsArray})
         } catch (err) {
             res.status(500).json({message: err.message});
         }
