@@ -135,12 +135,12 @@ const userController = {
     loginUserAndUpdateSocketId: async(sid, nickname) =>{
         return await User.findOneAndUpdate(
             { nickname },
-            { $set: { socketId, online: true } },
+            { $set: { socketId : sid, online: true } },
             { new: true }
         );
     },
     checkUser: async (sid)=>{
-        const user = await User.findOne({socketId:sid});
+        const user = await User.findOne({socketId : sid});
         if (!user) throw new Error("user not found");
         return user;
     },

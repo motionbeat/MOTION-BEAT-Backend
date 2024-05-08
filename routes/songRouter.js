@@ -6,25 +6,6 @@ const songRouter = Router();
 
 /**
  * @swagger
- *  /songs:
- *    get:
- *      summary: "전체 곡 조회"
- *      description: "GET 방식으로 전체 곡 목록 조회"
- *      tags:
- *      - song
- *      produces:
- *      - application/json
- *      responses:
- *       200:
- *        description: Successfully found all songs
- *       500:
- *        description: Internal server error
- *         
- */
-songRouter.get("/", songController.getAllSongs);
-
-/**
- * @swagger
  *  /songs/{difficulty}:
  *    get:
  *      summary: "난이도로 곡 조회"
@@ -202,6 +183,24 @@ songRouter.get("/random", songController.randomSong);
  */
 songRouter.get("/:number", songController.getSongByNumber);
 
+/**
+ * @swagger
+ *  /songs:
+ *    get:
+ *      summary: "전체 곡 조회"
+ *      description: "GET 방식으로 전체 곡 목록 조회"
+ *      tags:
+ *      - song
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       200:
+ *        description: Successfully found all songs
+ *       500:
+ *        description: Internal server error
+ *         
+ */
+songRouter.get("/", songController.getAllSongs);
 
 
 export default songRouter;

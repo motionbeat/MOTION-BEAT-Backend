@@ -5,6 +5,10 @@ const rankingSchema = new mongoose.Schema({
         type:String,
         required: true,
     }, 
+    number:{
+        type: String,
+        required: true,
+    },
     user:{
         type:String,
         required:true,

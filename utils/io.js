@@ -36,7 +36,9 @@ export default function ioFunction(io) {
         //채팅시 내용/보낸 사용자 저장, 해당 메시지를 모두에게 전달
         socket.on("sendMessage", async (message, cb)=>{
             try{
+                console.log("MSG");
                 const user = await userController.checkUser(socket.id);
+                console.log(user);
                 const room = await roomController.findRoomByPlayerNickname(user.nickname);
 
                 console.log(room.code)
@@ -171,8 +173,9 @@ export default function ioFunction(io) {
             }
         });
 
-        socket.on("hit", async(code, currentScore, cb)=>{
-            io.to(code).emit(currentScore)
+        socket.on("hit", async(code, nickname, currentScore, cb)=>{
+            let playerScore = {nickname: nickname, score: currentScore}
+            io.to(code).emit("liveScore", playerScore)
             cb({ ok: true });
         });
 

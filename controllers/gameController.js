@@ -47,13 +47,17 @@ const gameController = {
             if (!game){
                 console.log("NO GAME");
             }
-            if (nickname.recentlyPlayed.length > 4){
-                await User.updateOne({ nickname }, { $pull: { recentlyPlayed: nickname.recentlyPlayed[0] } });
+            const currentUser = await User.findOne({nickname});
+            let recentlyPlayed = currentUser.recentlyPlayed;
+            recentlyPlayed.push(game.song);
+            if (recentlyPlayed.length > 5) {
+                recentlyPlayed = recentlyPlayed.slice(-5);
             }
-            await User.updateOne({ nickname }, { $push: { recentlyPlayed: game.song } });
-            const myRanking = new Ranking({
+            await User.updateOne(
+                { nickname },
+                { $set: { recentlyPlayed } }
+            );
 
-            })
             res.status(200).json(game);
         } catch(err){
             console.error('Error finishing game', err);
@@ -78,7 +82,7 @@ const gameController = {
             //     return currentGame;
             // }
             // return;
-            res.status(200).json({message:"Successfully ended"});
+            res.status(200).json({message:"redirect"});
         } catch (err) {
             res.status(500).json({error: 'Internal server error'})
         }
