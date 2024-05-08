@@ -82,6 +82,17 @@ const gameController = {
         } catch (err) {
             res.status(500).json({error: 'Internal server error'})
         }
+    },
+
+        /* Admin */
+
+    resetGames: async(req, res)=>{
+        try{
+            await Game.deleteMany({});
+            res.status(200).json ({message: "successfully deleted all rooms"})
+        } catch (err) {
+            res.status(500).json({message: err.message });
+        }
     }
 }
 
