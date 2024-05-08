@@ -15,7 +15,8 @@ import roomRouter from "./routes/roomRouter.js";
 import gameRouter from "./routes/gameRouter.js";
 import instrumentRouter from "./routes/instrumentRouter.js";
 import openviduRouter from "./routes/openviduRouter.js";
-
+import createRateLimiter from "./middlewares/rateLimitMiddleware.js";
+// const limiter = createRateLimiter();
 
 import { KakaoClient } from "./social/kakao.js";
 
@@ -58,7 +59,7 @@ app.get("/kakao/url", (req, res, next) => {
 
 app.use("/api/users", userRouter);
 
-// app.use('/api', authMiddleware);
+// app.use('/api', authMiddleware, limiter);
 
 app.use("/api/songs", songRouter);
 app.use("/api/rankings", rankingRouter);

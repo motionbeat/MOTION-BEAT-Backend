@@ -23,7 +23,7 @@ const roomController = {
         const { type } = req.body;
         let code = makeCode();
         try{
-            let song = await songController.randomSong();
+            const song = await songController.randomSong();
             const room = new Room({ 
                 code, 
                 hostName: nickname, 
