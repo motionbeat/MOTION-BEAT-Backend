@@ -2,6 +2,8 @@ import {io} from "../utils/socket.js";
 import Room from "../schemas/roomSchema.js";
 import Game from "../schemas/gameSchema.js";
 import User from "../schemas/userSchema.js";
+import Ranking from "../schemas/rankingSchema.js";
+
 import roomController from "./roomController.js";
 import mongoose from "mongoose";
 
@@ -49,6 +51,9 @@ const gameController = {
                 await User.updateOne({ nickname }, { $pull: { recentlyPlayed: nickname.recentlyPlayed[0] } });
             }
             await User.updateOne({ nickname }, { $push: { recentlyPlayed: game.song } });
+            const myRanking = new Ranking({
+
+            })
             res.status(200).json(game);
         } catch(err){
             console.error('Error finishing game', err);
@@ -56,8 +61,8 @@ const gameController = {
         }
     },
     leaveGame: async(req, res)=>{
-        const { code }= req.body
-        const { nickname }= req.headers
+        const { code } = req.body
+        const { nickname } = req.headers
         try{
             const game = await Game.findOne({code});
             if (game){
