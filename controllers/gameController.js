@@ -67,6 +67,7 @@ const gameController = {
     leaveGame: async(req, res)=>{
         const { code } = req.body
         const { nickname } = req.headers
+        console.log("LEAVE GAME");
         try{
             const game = await Game.findOne({code});
             if (game){

@@ -51,6 +51,9 @@ songRouter.get("/difficulty/:difficulty", songController.getSongByDifficulty);
  */
 songRouter.patch("/recent", songController.addRecentSong)
 
+
+songRouter.get("/recent", songController.getRecentlyPlayed)
+
 /**
  * @swagger
  *  /songs/favorite/{title}:

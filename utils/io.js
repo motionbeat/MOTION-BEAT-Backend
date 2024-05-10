@@ -102,7 +102,6 @@ export default function ioFunction(io) {
         //곡 변경 
         socket.on("changeSong", async (data, cb)=>{
             const {roomCode, song} = data;
-            console.log("CHECKING:", roomCode, song.number);
             try{
                 await Room.updateOne({code: roomCode}, {$set: {song: song.number}});
                 io.to(data.roomCode).emit(`songChanged`, data.song);
@@ -136,10 +135,12 @@ export default function ioFunction(io) {
                     loadedPlayersPerRoom.set(code, loadedPlayers);
                 }
                 loadedPlayers.add(nickname);
+                console.log(loadedPlayers);
                 const game = await Game.findOne({ code })
                 if (game && game.players.length === loadedPlayers.size) {
-                    const serverTime = new Date().toISOString();
-                    io.emit(`allPlayersLoaded${code}`);
+                    const startTime = Date.now() + 5000;
+                    console.log(startTime);
+                    io.emit(`allPlayersLoaded${code}`, startTime);
                 }
             } catch (err) {
                 console.error('방 확인 중 오류 발생:', err);
@@ -170,7 +171,7 @@ export default function ioFunction(io) {
                     
                     if (game.players.length === endedPlayers.size) {                    
                         console.log("ALL ENDED");
-                        io.emit(`allPlayersEnded${code}`,  );
+                        io.emit(`allPlayersEnded${code}`);
                     }
                 }
             } catch (err) {

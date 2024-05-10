@@ -100,9 +100,11 @@ const songController = {
         try{
             const song = Song.findOne({number: songNumber});
             const currentUser = User.findOne({nickname});
-            currentUser.recentlyPlayed.unshift(song.title);
-            if (currentUser.recentlyPlayed.length > 5){
-                currentUser.recentlyPlayed.pop();
+            if (!currentUser.recentlyPlayed.includes(song.number)) {
+                currentUser.recentlyPlayed.unshift(song.number);
+                if (currentUser.recentlyPlayed.length > 5){
+                    currentUser.recentlyPlayed.pop();
+                }
             }
             res.status(200).json({message: "성공적으로 노래를 등록했습니다."});
         } catch (err) {

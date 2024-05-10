@@ -4,7 +4,11 @@ const openviduController = {
     makeSession : async (req, res)=>{
         try {
             // Create a new session in OpenVidu
+            // const nickname = req.headers.nickname 
+            // req.body.userId = nickname
             const session = await OV.createSession(req.body);
+
+            // (req.body.sessionId = )
 
             // Return the session ID to the client
             // res.status(200).json({ sessionId: [session.sessionId] });

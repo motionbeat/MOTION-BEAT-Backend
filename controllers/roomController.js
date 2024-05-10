@@ -91,9 +91,11 @@ const roomController = {
             res.status(500).json({message: err.message}); 
         }
     },
+    
     leaveRoom: async (req, res)=>{
-        const nickname = req.headers.nickname;
+        const { nickname } = req.headers;
         const { code } = req.body;
+        console.log("LEAVE ROOM");
         try{
             const currentRoom = await Room.findOneAndUpdate(
                 { code }, 
