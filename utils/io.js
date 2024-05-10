@@ -138,6 +138,7 @@ export default function ioFunction(io) {
                 loadedPlayers.add(nickname);
                 const game = await Game.findOne({ code })
                 if (game && game.players.length === loadedPlayers.size) {
+                    const serverTime = new Date().toISOString();
                     io.emit(`allPlayersLoaded${code}`);
                 }
             } catch (err) {
@@ -146,7 +147,10 @@ export default function ioFunction(io) {
         });
 
         // 게임 종료 확인
-        socket.on('gameEnded', async ({nickname, code, score})=>{
+        socket.on('gameEnded', async (data)=>{
+            const {code,nickname,score} = data;
+            console.log("GAME ENDED");
+            console.log("CODE, NICK, SCORE", code, nickname, score);
             let endedPlayers = endedPlayersPerRoom.get(code);
             try{ 
                 if (!endedPlayers) {
@@ -154,7 +158,7 @@ export default function ioFunction(io) {
                     endedPlayersPerRoom.set(code, endedPlayers);
                 }
                 endedPlayers.add(nickname);
-        
+                console.log("ADDED TO ENDED PLAYERS")
                 const game = await Game.findOne({ code })
                 if (game) {
                     // Update player's score
@@ -165,7 +169,8 @@ export default function ioFunction(io) {
                     }
                     
                     if (game.players.length === endedPlayers.size) {                    
-                        io.emit(`allPlayersEnded${code}`);
+                        console.log("ALL ENDED");
+                        io.emit(`allPlayersEnded${code}`,  );
                     }
                 }
             } catch (err) {
@@ -173,10 +178,18 @@ export default function ioFunction(io) {
             }
         });
 
-        socket.on("hit", async(code, nickname, currentScore, cb)=>{
-            let playerScore = {nickname: nickname, score: currentScore}
-            io.to(code).emit("liveScore", playerScore)
-            cb({ ok: true });
+        socket.on("hit", async(receivedData, cb)=>{
+            const { code, nickname, currentScore } = receivedData
+            // let playerScore = {nickname: nickname, score: currentScore}
+            // io.to(code).emit(`liveScore, playerScore)
+            console.log("HIT", currentScore, nickname, code);
+            try {
+                io.to(code).emit(`liveScore${nickname}`, currentScore)
+                cb({ ok: true });
+            } catch (error)   {
+                console.error("Error sending score update", error);
+                cb({ ok: false, error: "Failed to send score update." });
+            }
         });
 
         // Disconnect 확인
