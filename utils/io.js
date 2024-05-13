@@ -180,12 +180,13 @@ export default function ioFunction(io) {
         });
 
         socket.on("hit", async(receivedData, cb)=>{
-            const { code, nickname, currentScore } = receivedData
+            const { code, nickname, currentScore, instrument, motionType } = receivedData
             // let playerScore = {nickname: nickname, score: currentScore}
             // io.to(code).emit(`liveScore, playerScore)
-            console.log("HIT", currentScore, nickname, code);
+            // console.log("HIT", currentScore, nickname, code, instrument, motionType);
+           
             try {
-                io.to(code).emit(`liveScore${nickname}`, currentScore)
+                io.to(code).emit(`liveScore${nickname}`, currentScore, instrument, motionType);
                 cb({ ok: true });
             } catch (error)   {
                 console.error("Error sending score update", error);
