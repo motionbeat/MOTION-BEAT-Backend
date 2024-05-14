@@ -1,11 +1,16 @@
 import {io} from "../utils/socket.js";
 import User from "../schemas/userSchema.js";
+import Room from "../schemas/roomSchema.js";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv"
 dotenv.config();
+
+async function getUserBySocketId(socketId) {
+    return await User.findOne({socketId: socketId});
+}
 
 const userController = {
     getAllUsers: async (req, res)=>{
@@ -22,6 +27,7 @@ const userController = {
         const { _id } = req.body;
         try{
             const user = await User.find({_id});
+            res.status(200).json(user);
         } catch (err) {
             console.log(err);
             res.status(500).json({message: err.message});
@@ -82,13 +88,11 @@ const userController = {
     loginUser: async (req,res) =>{
         const {email, pw} = req.body;
         try{
-            const loginUser = await User.findOne({ email });
-            if(!loginUser){
-                return res.status(404).json({message: "사용자를 찾을 수 없습니다."});
-            }
-            const validate = await User.findAndValidate(email, pw);
-            if(!validate){
-                return res.status(404).json({message:"잘못된 패스워드입니다."});
+            const userPromise = User.findOne({ email });
+            const validatePromise = User.findAndValidate(email, pw);
+            const [loginUser, validate] = await Promise.all([userPromise, validatePromise]);
+            if(!loginUser || !validate){
+                return res.status(404).json({message:"잘못된 정보입니다."});
             }
             const jwtoken = jwt.sign(
                 { id: loginUser._id, email: loginUser.email },
@@ -98,7 +102,6 @@ const userController = {
             loginUser.token = jwtoken;
             loginUser.online = true;
             loginUser.isReady = false;
-            console.log(loginUser);
             await loginUser.save()
             res.status(200).json({message: "로그인 성공!", jwtoken, userId: loginUser._id, nickname: loginUser.nickname })
         } catch(err) {
@@ -111,7 +114,6 @@ const userController = {
         currentUser.token = null;
         try{
             await currentUser.save();
-            console.log(currentUser);
             io.emit('userStatus', { nickname: currentUser.nickname, online: false });
             res.status(200).json({message: "로그아웃 성공!"});
         } catch (err) {
@@ -123,8 +125,11 @@ const userController = {
         const {nickname} = req.headers;
         const { lobbyVolume, buttonVolume, gameVolume } = req.body;
         try {
-            const user = await User.findOne({nickname});
-
+            const user = await User.findOneAndUpdate(
+                {nickname},
+                { $set: { lobbyVolume, buttonVolume, gameVolume } },
+                { new: true }
+            );
         } catch (err){
             res.status(500).json({message:err.message});
         }
@@ -139,18 +144,21 @@ const userController = {
             { new: true }
         );
     },
-    checkUser: async (sid)=>{
-        const user = await User.findOne({socketId : sid});
+    checkUser: async (sid) => {
+        const user = await getUserBySocketId(sid);
         if (!user) throw new Error("user not found");
         return user;
     },
     toggleReady: async(sid)=>{
-        const user = await User.findOne({socketId: sid});
+        const user = await getUserBySocketId(sid);
         if (!user) throw new Error("user not found");
-
         user.isReady = !user.isReady;
         await user.save();
-
+        await Room.findOneAndUpdate(
+            { "players.nickname": user.nickname }, 
+            { $set: { "players.$.isReady": user.isReady } }, 
+        );
+    
         return user;
     },
 }

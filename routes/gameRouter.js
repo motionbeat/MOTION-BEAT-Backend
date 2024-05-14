@@ -13,4 +13,7 @@ gameRouter.patch("/leave", gameController.leaveGame);
 
 gameRouter.delete("/admin/delete", adminAuth, gameController.resetGames);
 
+gameRouter.post("/testgame", gameController.makeTestGame)
+
+
 export default gameRouter;
