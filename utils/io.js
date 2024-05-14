@@ -114,6 +114,7 @@ export default function ioFunction(io) {
 
         // 방 나가기 및 방 정보 갱신
         socket.on("leaveRoom", async (code, cb)=>{
+            console.log("LEAVING");
             try{
                 const roomPlayers = await roomController.getPlayerInfo(code);            
                 socket.leave(code);

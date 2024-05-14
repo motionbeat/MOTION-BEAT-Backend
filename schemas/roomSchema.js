@@ -28,6 +28,10 @@ const roomSchema = new mongoose.Schema({
         instrument: {
             type: String,
             ref: "Instrument"
+        },
+        isReady: {
+            type: Boolean,
+            default: false
         }
       }],
     gameState: {

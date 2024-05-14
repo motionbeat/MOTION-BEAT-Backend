@@ -1,11 +1,16 @@
 import {io} from "../utils/socket.js";
 import User from "../schemas/userSchema.js";
+import Room from "../schemas/roomSchema.js";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv"
 dotenv.config();
+
+async function getUserBySocketId(socketId) {
+    return await User.findOne({socketId: socketId});
+}
 
 const userController = {
     getAllUsers: async (req, res)=>{
@@ -147,9 +152,12 @@ const userController = {
     toggleReady: async(sid)=>{
         const user = await User.findOne({socketId: sid});
         if (!user) throw new Error("user not found");
-
         user.isReady = !user.isReady;
         await user.save();
+        await Room.findOneAndUpdate(
+            { "players.nickname": user.nickname }, 
+            { $set: { "players.$.isReady": user.isReady } }, 
+          );
 
         return user;
     },

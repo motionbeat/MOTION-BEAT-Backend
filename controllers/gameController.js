@@ -98,6 +98,41 @@ const gameController = {
         } catch (err) {
             res.status(500).json({message: err.message });
         }
+    },
+    
+    makeTestGame: async(req, res)=>{
+        try{
+            const testGame = new Game({
+                code:"999999", 
+                song:5,
+                gameState:"playing", 
+                players: [
+                    {
+                        nickname: "test1", 
+                        instrument:"drum1", 
+                        score:0
+                    },
+                    {
+                        nickname: "test2",
+                        instrument: "drum2",
+                        score: 0
+                    },
+                    {
+                        nickname: "test3",
+                        instrument: "drum3",
+                        score: 0 
+                    },
+                    {
+                        nickname: "test4",
+                        instrument: "drum4",
+                        score: 0
+                    }
+                ]
+            })
+            res.status(200).json(testGame);
+        } catch (err){
+            res.status(500).json({message: err.message});
+        }
     }
 }
 

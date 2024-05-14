@@ -15,8 +15,11 @@ import roomRouter from "./routes/roomRouter.js";
 import gameRouter from "./routes/gameRouter.js";
 import instrumentRouter from "./routes/instrumentRouter.js";
 import openviduRouter from "./routes/openviduRouter.js";
+
+//middleware
 import createRateLimiter from "./middlewares/rateLimitMiddleware.js";
 // const limiter = createRateLimiter();
+import compression from 'compression';
 
 import { KakaoClient } from "./social/kakao.js";
 
@@ -26,10 +29,12 @@ dotenv.config();
 import {app} from "./app.js"
 
 // request parsing
-// Allow application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.urlencoded({extended:true}));
+
+//compression
+app.use(compression());
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*'); // Allow requests from any origin
@@ -46,15 +51,11 @@ ioFunction(io);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 app.get("/kakao/url", (req, res, next) => {
-  console.log("/kakao/url start");
-
   const url = KakaoClient.getAuthCodeURL();
 
   res.status(200).json({
     url,
   });
-  
-  console.log("/kakao/url finish");
 });
 
 app.use("/api/users", userRouter);

@@ -49,6 +49,7 @@ roomRouter.patch("/leave",  roomController.leaveRoom);
 roomRouter.post("/match", roomController.matchRoom);
 // roomRouter.patch("/join/random", roomController.joinRoom);
 
+
 roomRouter.patch("/join/:code",roomController.joinRoomByCode);
 
 roomRouter.get("/check", roomController.checkStartGame);

@@ -175,6 +175,7 @@ const roomController = {
             res.status(500).json({message: err.message });
         }
     }
+
 }
 
 export default roomController
