@@ -30,7 +30,7 @@ const roomSchema = new mongoose.Schema({
             ref: "Instrument"
         },
         isReady: {
-            type: Boolean,
+            type: Boolean, 
             default: false
         }
       }],

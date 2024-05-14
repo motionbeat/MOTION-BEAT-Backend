@@ -22,7 +22,6 @@ export default function ioFunction(io) {
                 const currentUser = await userController.loginUserAndUpdateSocketId(socket.id, nickname);
                 if (currentUser) {
                     io.emit('userStatus', { nickname, online: true });
-                    console.log("User logged in successfully:", currentUser);
                     cb({ok: true});
                 } else {
                     console.log("User not found.");
@@ -36,12 +35,8 @@ export default function ioFunction(io) {
         //채팅시 내용/보낸 사용자 저장, 해당 메시지를 모두에게 전달
         socket.on("sendMessage", async (message, cb)=>{
             try{
-                console.log("MSG");
                 const user = await userController.checkUser(socket.id);
-                console.log(user);
                 const room = await roomController.findRoomByPlayerNickname(user.nickname);
-
-                console.log(room.code)
                 if (!room){
                     return;
                 }
@@ -76,7 +71,10 @@ export default function ioFunction(io) {
                     isReady, 
                     nickname
                 }
-                const room = await Room.findOne({ "players.nickname": nickname });
+                const room = await Room.findOneAndUpdate(
+                    { "players.nickname": nickname },
+                    { $set: { "players.$.isReady": true } }
+                );
                 io.to(room.code).emit("readyStatus", userReady);
                 if(room.players.every(player => player.nickname !== room.hostName && player.isReady)){
                     io.to(room.code.emit("allReady", true))
@@ -136,7 +134,6 @@ export default function ioFunction(io) {
                     loadedPlayersPerRoom.set(code, loadedPlayers);
                 }
                 loadedPlayers.add(nickname);
-                console.log(loadedPlayers);
                 const game = await Game.findOne({ code })
                 if (game && game.players.length === loadedPlayers.size) {
                     const startTime = Date.now() + 5000;
@@ -151,8 +148,6 @@ export default function ioFunction(io) {
         // 게임 종료 확인
         socket.on('gameEnded', async (data)=>{
             const {code,nickname,score} = data;
-            console.log("GAME ENDED");
-            console.log("CODE, NICK, SCORE", code, nickname, score);
             let endedPlayers = endedPlayersPerRoom.get(code);
             try{ 
                 if (!endedPlayers) {
@@ -160,7 +155,6 @@ export default function ioFunction(io) {
                     endedPlayersPerRoom.set(code, endedPlayers);
                 }
                 endedPlayers.add(nickname);
-                console.log("ADDED TO ENDED PLAYERS")
                 const game = await Game.findOne({ code })
                 if (game) {
                     // Update player's score
@@ -171,7 +165,6 @@ export default function ioFunction(io) {
                     }
                     
                     if (game.players.length === endedPlayers.size) {                    
-                        console.log("ALL ENDED");
                         io.emit(`allPlayersEnded${code}`);
                     }
                 }
@@ -181,12 +174,13 @@ export default function ioFunction(io) {
         });
 
         socket.on("hit", async(receivedData, cb)=>{
-            const { code, nickname, currentScore } = receivedData
+            const { code, nickname, currentScore, instrument, motionType } = receivedData
             // let playerScore = {nickname: nickname, score: currentScore}
             // io.to(code).emit(`liveScore, playerScore)
-            console.log("HIT", currentScore, nickname, code);
+            // console.log("HIT", currentScore, nickname, code, instrument, motionType);
+           
             try {
-                io.to(code).emit(`liveScore${nickname}`, currentScore)
+                io.to(code).emit(`liveScore${nickname}`, currentScore, instrument, motionType);
                 cb({ ok: true });
             } catch (error)   {
                 console.error("Error sending score update", error);

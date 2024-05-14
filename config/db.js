@@ -11,4 +11,11 @@ const db = mongoose.connect(process.env.DB)
         console.log(err);
     })
 
+process.on('SIGINT', function() {
+    mongoose.connection.close(function () {
+        console.log('Mongoose disconnected on app termination');
+        process.exit(0);
+    });
+});
+
 export default db; 

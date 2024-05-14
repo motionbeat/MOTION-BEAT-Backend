@@ -45,9 +45,9 @@ const songController = {
             const favSong = await Song.findOne({title: req.params.title});
             const currentUser = await User.findById(req.headers.userid);
             if (currentUser.favorite.includes(favSong._id)){
-                User.updateOne({ nickname:currentUser.nickname }, {$pull : {favorite: favSong.number}})
+                await User.updateOne({ nickname:currentUser.nickname }, {$pull : {favorite: favSong.number}})
             } else {
-                User.updateOne({ nickname:currentUser.nickname }, {$push : {favorite: favSong.number}})
+                await User.updateOne({ nickname:currentUser.nickname }, {$push : {favorite: favSong.number}})
             }
             res.status(200).json({ message: `${req.params.title}이(가) 즐겨찾기에 추가되었습니다.`})
         } catch(err){
@@ -98,13 +98,14 @@ const songController = {
         const { songNumber } = req.body;
         const { nickname } = req.headers;
         try{
-            const song = Song.findOne({number: songNumber});
-            const currentUser = User.findOne({nickname});
+            const song = await Song.findOne({number: songNumber});
+            const currentUser = await User.findOne({nickname});
             if (!currentUser.recentlyPlayed.includes(song.number)) {
                 currentUser.recentlyPlayed.unshift(song.number);
                 if (currentUser.recentlyPlayed.length > 5){
                     currentUser.recentlyPlayed.pop();
                 }
+                await currentUser.save();
             }
             res.status(200).json({message: "성공적으로 노래를 등록했습니다."});
         } catch (err) {
