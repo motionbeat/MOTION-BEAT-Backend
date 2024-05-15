@@ -13,11 +13,11 @@ const router = express.Router();
 
 router.use("/api/users", userRouter);
 router.use('/api', authMiddleware);
+router.use("/api/openvidu", openviduRouter);
 router.use("/api/songs", songRouter);
 router.use("/api/rankings", rankingRouter);
 router.use("/api/rooms", roomRouter);
 router.use("/api/games", gameRouter);
 router.use("/api/instruments", instrumentRouter);
-router.use("/api/openvidu", openviduRouter);
 
 export default router;
