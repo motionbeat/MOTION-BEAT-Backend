@@ -175,14 +175,12 @@ export default function ioFunction(io) {
             }
         });
 
-        socket.on("hit", async(receivedData, cb)=>{
+        socket.on("hit", async(receivedData)=>{
             const { code, nickname, currentScore, combo, instrument, motionType } = receivedData
             try {
                 io.to(code).emit(`liveScore${nickname}`, currentScore, combo, instrument, motionType);
-                cb({ ok: true });
             } catch (error)   {
                 console.error("Error sending score update", error);
-                cb({ ok: false, error: "Failed to send score update." });
             }
         });
 
