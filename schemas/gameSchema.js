@@ -30,7 +30,7 @@ const gameSchema = new mongoose.Schema({
         score: {
             type: Number,
             default: 0
-        } 
+        },
     }],
     // Other game-related fields...
   });

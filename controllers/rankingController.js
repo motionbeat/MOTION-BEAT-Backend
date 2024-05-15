@@ -1,4 +1,5 @@
 import Ranking from "../schemas/rankingSchema.js";
+import Song from "../schemas/songSchema.js";
 import mongoose from "mongoose";
 
 
@@ -7,19 +8,27 @@ const rankingController = {
         const title = req.params.title
         try{
             const rankings = await Ranking.find({ title });
-            res.json(rankings);
+            res.status(200).json(rankings);
         } catch (err) {
             console.log(err);
-            res.status (500).json({message: err.message});
+            res.status(500).json({message: err.message});
         }
     },
-    getRankingByInstrument: async (req, res) =>{
-        try{
-            const instRankings = await Ranking.find({ title: req.params.title , instrument: req.params.instrument});
-            res.json(instRankings);
+    saveRanking: async(game) => {
+        try {
+            const song = await Song.findOne({number: game.song});
+            const totalScore = game.players.reduce((total, player) => total + player.score, 0);
+            const newRanking = new Ranking({
+                title: song.title,
+                number: game.song,
+                players: game.players,
+                totalScore
+            })
+            await newRanking.save()
+            return;
         } catch (err) {
-            console.log(err);
-            res.status(500).json({message:err.message});
+            console.error(err);
+            throw err;
         }
     }
 }
