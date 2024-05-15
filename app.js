@@ -8,7 +8,7 @@ const limiter = createRateLimiter();
 const app =  express();
 
 app.use(cors({
-    origin: ['http://192.168.0.146:3000', 'http://172.21.176.1:3000', 'http://localhost:3000'],
+    origin: ['http://192.168.0.0:3000', 'http://172.21.176.1:3000', 'http://localhost:3000'],
     credentials: true
 }));
 app.set('trust proxy', true);
