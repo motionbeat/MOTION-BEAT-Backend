@@ -28,6 +28,4 @@ const rankingRouter = Router();
  */
 rankingRouter.get("/:title",  rankingController.getRankingBySong);
 
-rankingRouter.get("/:title/instrument/:instrument", rankingController.getRankingByInstrument)
-
 export default rankingRouter;

@@ -5,6 +5,7 @@ import userController from "../controllers/userController.js";
 import chatController from "../controllers/chatController.js";
 import roomController from "../controllers/roomController.js";
 import gameController from "../controllers/gameController.js";
+import rankingController from "../controllers/rankingController.js";
 import mongoose from "mongoose"
 import songSchema from "../schemas/songSchema.js";
 import roomSchema from "../schemas/roomSchema.js";
@@ -164,7 +165,8 @@ export default function ioFunction(io) {
                         await game.save();
                     }
                     
-                    if (game.players.length === endedPlayers.size) {                    
+                    if (game.players.length === endedPlayers.size) {    
+                        await rankingController.saveRanking(game);
                         io.emit(`allPlayersEnded${code}`);
                     }
                 }
@@ -174,13 +176,9 @@ export default function ioFunction(io) {
         });
 
         socket.on("hit", async(receivedData, cb)=>{
-            const { code, nickname, currentScore, instrument, motionType } = receivedData
-            // let playerScore = {nickname: nickname, score: currentScore}
-            // io.to(code).emit(`liveScore, playerScore)
-            // console.log("HIT", currentScore, nickname, code, instrument, motionType);
-           
+            const { code, nickname, currentScore, combo, instrument, motionType } = receivedData
             try {
-                io.to(code).emit(`liveScore${nickname}`, currentScore, instrument, motionType);
+                io.to(code).emit(`liveScore${nickname}`, currentScore, combo, instrument, motionType);
                 cb({ ok: true });
             } catch (error)   {
                 console.error("Error sending score update", error);
