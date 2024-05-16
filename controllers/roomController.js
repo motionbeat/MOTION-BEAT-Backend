@@ -23,7 +23,7 @@ const roomController = {
         const { type } = req.body;
         let code = makeCode();
         try{
-            const song = await songController.randomSong();
+            let song = await songController.randomSong();
             const room = new Room({ 
                 code, 
                 hostName: nickname, 
@@ -38,7 +38,8 @@ const roomController = {
                   $push: {
                     players: {
                       nickname: nickname, 
-                      instrument: "none" 
+                      instrument: "none",
+                      isReady: true
                     }
                   }
                 });
@@ -144,6 +145,36 @@ const roomController = {
             res.status(200).json({canStart : true});
         } catch (err) {
             res.status(500).json({message: err.message });
+        }
+    },
+
+    makeTutorial: async (req, res)=>{
+        const nickname = req.headers.nickname;
+        let code = makeCode();
+        try{
+            const room = new Room({ 
+                code, 
+                hostName: nickname, 
+                song: 0, 
+                type: "tutorial", 
+                gameState: "waiting"
+            });
+            await room.save();
+            await Room.updateOne(
+                { code }, 
+                {
+                  $push: {
+                    players: {
+                      nickname: nickname, 
+                      instrument: "drum1",
+                      isReady: true
+                    }
+                  }
+                });
+            res.status(200).json(room);
+        } catch (err) {
+            console.log(err);
+            res.status (500).json({message: err.message});
         }
     },
 

@@ -50,12 +50,17 @@ export default function ioFunction(io) {
         })
 
         //방 들어가기 및 해당 방 정보 갱신
-        socket.on("joinRoom", async (code, cb)=>{
+        socket.on("joinRoom", async (receivedData, cb)=>{
+            const {nickname, code} = receivedData; 
             try{
                 const roomPlayers = await roomController.getPlayerInfo(code); 
                 socket.join(code);
                 console.log("Socket joined room:", code);
                 io.emit(`players${code}`, roomPlayers);
+                const room = await Room.findOne({code})
+                if (room.hostName !== nickname){
+                    io.to(room.code).emit('allReady', false);
+                }
                 cb({ok: true});
             } catch(err){
                 cb({ok: false, error: err.message});
@@ -74,11 +79,13 @@ export default function ioFunction(io) {
                 }
                 const room = await Room.findOneAndUpdate(
                     { "players.nickname": nickname },
-                    { $set: { "players.$.isReady": true } }
+                    { $set: { "players.$.isReady": true? true: false } }
                 );
                 io.to(room.code).emit("readyStatus", userReady);
-                if(room.players.every(player => player.nickname !== room.hostName && player.isReady)){
-                    io.to(room.code.emit("allReady", true))
+                if(room.players.every(player => player.isReady)){
+                    io.to(room.code).emit("allReady", true)
+                } else {
+                    io.to(room.code).emit("allReady", false)
                 }
                 cb({ok: true})
             } catch (err) {
