@@ -16,7 +16,7 @@ app.use(cors({
         // Allow requests with no origin 
         // (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        if (origin.startsWith('http://192.168.') || origin === 'http://172.21.176.1:3000' || origin === 'http://localhost:3000' || origin === "https://d3fcvy9qfcb2ur.cloudfront.net/" || origin === "https://motionbe.at") {
+        if (origin.startsWith('http://192.168.') || origin === 'http://172.21.176.1:3000' || origin === 'http://localhost:3000' || origin === "https://d3fcvy9qfcb2ur.cloudfront.net/" || origin === "https://www.motionbe.at" || origin === "https://*.motionbe.at") {
             return callback(null, true);
         }
         var msg = 'The CORS policy for this site does not ' +
