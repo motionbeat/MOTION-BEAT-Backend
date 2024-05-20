@@ -38,7 +38,7 @@ const roomController = {
                     $push: {
                         players: {
                             nickname: nickname,
-                            instrument: "none",
+                            instrument: "select",
                             isReady: true
                         }
                     }
