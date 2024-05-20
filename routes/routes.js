@@ -12,8 +12,10 @@ import authMiddleware from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 router.use("/api/users", userRouter);
-router.use('/api', authMiddleware);
 router.use("/api/openvidu", openviduRouter);
+
+router.use('/api', authMiddleware);
+
 router.use("/api/songs", songRouter);
 router.use("/api/rankings", rankingRouter);
 router.use("/api/rooms", roomRouter);
