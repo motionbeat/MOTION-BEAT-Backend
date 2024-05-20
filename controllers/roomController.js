@@ -150,6 +150,9 @@ const roomController = {
     makeTutorial: async (req, res) => {
         const nickname = req.headers.nickname;
         let code = makeCode();
+        if (await Room.findOne({ hostName: nickname })) {
+            await Room.deleteOne({ hostName: nickname });
+        }
         try {
             const room = new Room({
                 code,
