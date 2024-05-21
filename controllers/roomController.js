@@ -21,6 +21,19 @@ const roomController = {
     createRoom: async (req, res) => {
         const nickname = req.headers.nickname;
         const { type } = req.body;
+        const checkroom = await Room.findOne({ 'players.nickname': nickname })
+        if (checkroom) {
+            const leaveBody = {
+                headers: {
+                    nickname,
+                },
+                body: {
+                    code: checkroom.code,
+                },
+                ghost: true
+            };
+            roomController.leaveRoom(leaveBody, res);
+        }
         let code = makeCode();
         try {
             let song = await songController.randomSong();
@@ -50,7 +63,20 @@ const roomController = {
         }
     },
     joinRoomByCode: async (req, res) => {
-        const nickname = req.headers.nickname
+        const nickname = req.headers.nickname;
+        const checkroom = await Room.findOne({ 'players.nickname': nickname })
+        if (checkroom) {
+            const leaveBody = {
+                headers: {
+                    nickname,
+                },
+                body: {
+                    code: checkroom.code,
+                },
+                ghost: true
+            }
+            roomController.leaveRoom(leaveBody, res);
+        }
         let code = req.params.code;
         if (!code) {
             code = req.body.code;
@@ -114,6 +140,9 @@ const roomController = {
                 if (req.body.live) {
                     return currentRoom;
                 }
+            }
+            if (req.ghost) {
+                return;
             }
             if (req.body.live) {
                 return currentRoom;
