@@ -19,6 +19,7 @@ export default function ioFunction(io) {
 
         //사용자 로그인: 로그인 시 사용자에 소켓 ID 등록
         socket.on("login", async (nickname, cb) => {
+            socket.nickname = nickname;
             try {
                 const currentUser = await userController.loginUserAndUpdateSocketId(socket.id, nickname);
                 if (currentUser) {
@@ -52,6 +53,7 @@ export default function ioFunction(io) {
         //방 들어가기 및 해당 방 정보 갱신
         socket.on("joinRoom", async (receivedData, cb) => {
             const { nickname, code } = receivedData;
+            socket.code = code;
             try {
                 const roomPlayers = await roomController.getPlayerInfo(code);
                 socket.join(code);
@@ -147,6 +149,7 @@ export default function ioFunction(io) {
 
         // 방 나가기 및 방 정보 갱신
         socket.on("leaveRoom", async (code, cb) => {
+            socket.code = null;
             try {
                 const roomPlayers = await roomController.getPlayerInfo(code);
                 socket.leave(code);
@@ -171,7 +174,7 @@ export default function ioFunction(io) {
                 const game = await Game.findOne({ code })
                 if (game && game.players.length === loadedPlayers.size) {
                     const startTime = Date.now() + 5000;
-                    io.emit(`allPlayersLoaded${code}`, startTime);
+                    io.to(code).emit(`allPlayersLoaded${code}`, startTime);
                 }
             } catch (err) {
                 console.error('방 확인 중 오류 발생:', err);
@@ -218,8 +221,12 @@ export default function ioFunction(io) {
 
         // Disconnect 확인
         socket.on("disconnect", async () => {
+            const { nickname, code } = socket;
+
             try {
-                const user = await User.findOneAndUpdate({ socketId: socket.id }, { $set: { socketId: null, online: false } }, { new: true });
+
+                // const user = await User.findOneAndUpdate({ socketId: socket.id }, { $set: { socketId: null, online: false } }, { new: true });
+                const user = await User.findOneAndUpdate({ socketId: socket.id }, { $set: { online: false } }, { new: true });
                 if (user) {
                     const room = await Room.findOne({ "players.nickname": nickname });
                     if (room) {
@@ -240,23 +247,23 @@ export default function ioFunction(io) {
                             io.to(room.code).emit("leftRoom", roomPlayers)
                         }
                     }
-                    // const game = await Game.findOne({ "players.nickname": nickname });
-                    // if (game){
-                    //     const res = { status: () => {}, json: () => {} };
-                    //     const req = { 
-                    //         body : {
-                    //             live : true,
-                    //             code : game.code
-                    //         },
-                    //         headers: {
-                    //             nickname:  user.nickname
-                    //         }
-                    //     };
-                    //     const leftGame = await gameController.leaveGame(req, res);
-                    //     if (leftGame){
-                    //         socket.leave(room.code);
-                    //     }
-                    // }
+                    let endedPlayers = endedPlayersPerRoom.get(code);
+                    if (endedPlayers) {
+                        endedPlayers.delete(nickname);
+                        const game = await Game.findOne({ code })
+                        if (game) {
+                            const playerIndex = game.players.findIndex(player => player.nickname === nickname);
+                            if (playerIndex !== -1) {
+                                game.players.splice(playerIndex, 1);
+                                await game.save();
+                            }
+
+                            if (game.players.length === endedPlayers.size) {
+                                await rankingController.saveRanking(game);
+                                io.emit(`allPlayersEnded${code}`);
+                            }
+                        }
+                    }
                     io.emit('userStatus', { nickname: user.nickname, online: false });
                 }
                 console.log("User is disconnected");

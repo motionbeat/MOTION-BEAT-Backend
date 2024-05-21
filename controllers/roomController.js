@@ -23,16 +23,20 @@ const roomController = {
         const { type } = req.body;
         const checkroom = await Room.findOne({ 'players.nickname': nickname })
         if (checkroom) {
-            const leaveBody = {
-                headers: {
-                    nickname,
-                },
-                body: {
-                    code: checkroom.code,
-                },
-                ghost: true
-            };
-            roomController.leaveRoom(leaveBody, res);
+            if (checkroom.hostName === nickname) {
+                await Room.deleteOne({ hostName: nickname });
+            } else {
+                const leaveBody = {
+                    headers: {
+                        nickname,
+                    },
+                    body: {
+                        code: checkroom.code,
+                    },
+                    ghost: true
+                };
+                roomController.leaveRoom(leaveBody, res);
+            }
         }
         let code = makeCode();
         try {
@@ -178,10 +182,25 @@ const roomController = {
 
     makeTutorial: async (req, res) => {
         const nickname = req.headers.nickname;
-        let code = makeCode();
-        if (await Room.findOne({ hostName: nickname })) {
-            await Room.deleteOne({ hostName: nickname });
+        const checkroom = await Room.findOne({ 'players.nickname': nickname })
+        if (checkroom) {
+            if (checkroom.hostName === nickname) {
+                await Room.deleteOne({ hostName: nickname });
+            } else {
+                const leaveBody = {
+                    headers: {
+                        nickname,
+                    },
+                    body: {
+                        code: checkroom.code,
+                    },
+                    ghost: true
+                };
+                roomController.leaveRoom(leaveBody, res);
+            }
         }
+        const code = makeCode();
+        console.log(code);
         try {
             const room = new Room({
                 code,
@@ -192,7 +211,7 @@ const roomController = {
             });
             await room.save();
             await Room.updateOne(
-                { code },
+                { code: code },
                 {
                     $push: {
                         players: {

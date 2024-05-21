@@ -14,6 +14,25 @@ const gameController = {
         try {
             const room = await Room.findOne({ code });
             if (!room) {
+                if (req.body.isTest) {
+                    const game = new Game({
+                        code: code,
+                        song: 3,
+                        gameState: "playing",
+                        players: [
+                            {
+                                nickname: "test",
+                                score: 0,
+                                instrument: "drum4"
+                            }
+                        ]
+                    });
+                    socket.join(code);
+                    await game.save();
+                    room.gameState = "playing";
+                    io.emit(`gameStarted${code}`, game);
+                    res.status(200).json(game);
+                }
                 return res.status(404).json({ error: 'Room not found' });
             }
 
