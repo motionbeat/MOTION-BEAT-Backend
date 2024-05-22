@@ -1,9 +1,18 @@
 import { io } from "../utils/socket.js";
+import { Mutex } from "async-mutex";
 import Room from "../schemas/roomSchema.js";
 import User from "../schemas/userSchema.js";
 import songController from "./songController.js";
 import mongoose from "mongoose";
 
+const roomMutexes = new Map();
+
+function getRoomMutex(code) {
+    if (!roomMutexes.has(code)) {
+        roomMutexes.set(code, new Mutex());
+    }
+    return roomMutexes.get(code);
+}
 
 function makeCode() {
     let result = '';
@@ -68,24 +77,29 @@ const roomController = {
     },
     joinRoomByCode: async (req, res) => {
         const nickname = req.headers.nickname;
-        const checkroom = await Room.findOne({ 'players.nickname': nickname })
-        if (checkroom) {
-            const leaveBody = {
-                headers: {
-                    nickname,
-                },
-                body: {
-                    code: checkroom.code,
-                },
-                ghost: true
-            }
-            roomController.leaveRoom(leaveBody, res);
-        }
-        let code = req.params.code;
+        const code = req.params.code || req.body.code;
         if (!code) {
-            code = req.body.code;
+            return res.status(400).json({ message: "Code is required" });
         }
+
+        const roomMutex = getRoomMutex(code);
+        const release = await roomMutex.acquire();
+
         try {
+            const checkroom = await Room.findOne({ 'players.nickname': nickname })
+            if (checkroom) {
+                const leaveBody = {
+                    headers: {
+                        nickname,
+                    },
+                    body: {
+                        code: checkroom.code,
+                    },
+                    ghost: true
+                }
+                roomController.leaveRoom(leaveBody, res);
+            }
+
             let room = await Room.findOne({ code });
             if (!room) {
                 return res.status(404).json({ message: "존재하지 않는 방입니다." });
@@ -96,10 +110,17 @@ const roomController = {
             if (room.gameState !== "waiting") {
                 return res.status(409).json({ message: "현재 게임이 진행중인 방입니다." });
             }
-            room = await Room.findOneAndUpdate({ code }, { $push: { players: { nickname: nickname, instrument: "none" } } }, { new: true });
+            room = await Room.findOneAndUpdate(
+                { code },
+                { $push: { players: { nickname: nickname, instrument: "select" } } },
+                { new: true }
+            );
+
             res.status(200).json(room);
         } catch (err) {
             res.status(500).json({ message: err.message });
+        } finally {
+            release();
         }
     },
     matchRoom: async (req, res) => {
@@ -126,6 +147,8 @@ const roomController = {
     leaveRoom: async (req, res) => {
         const { nickname } = req.headers;
         const { code } = req.body;
+        const roomMutex = getRoomMutex(code);
+        const release = await roomMutex.acquire();
         try {
             const currentRoom = await Room.findOneAndUpdate(
                 { code },
@@ -154,6 +177,8 @@ const roomController = {
             res.status(200).json({ message: "redirect" });
         } catch (err) {
             res.status(500).json({ message: "Internal Server Error" });
+        } finally {
+            release();
         }
     },
 

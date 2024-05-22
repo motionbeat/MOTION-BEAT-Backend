@@ -67,33 +67,6 @@ export default function ioFunction(io) {
                 cb({ ok: false, error: err.message });
             }
         });
-        // socket.on("joinRoom", async (receivedData, cb) => {
-        //     const { nickname, code } = receivedData;
-        //     const session = await mongoose.startSession();
-        //     session.startTransaction();
-        //     try {
-        //         const room = await Room.findOne({ code }).session(session);
-        //         if (!room) {
-        //             throw new Error('Room not found');
-        //         }
-        //         if (room.players.length >= 4) {
-        //             throw new Error('Room is full');
-        //         }
-        //         await session.commitTransaction();
-        //         socket.join(code);
-        //         console.log("Socket joined room:", code);
-        //         io.emit(`players${code}`, room.players);
-        //         if (room.hostName !== nickname) {
-        //             io.to(room.code).emit('allReady', false);
-        //         }
-        //         cb({ ok: true });
-        //     } catch (err) {
-        //         await session.abortTransaction();
-        //         cb({ ok: false, error: err.message });
-        //     } finally {
-        //         session.endSession();
-        //     }
-        // });
 
 
         //준비상태 갱신
